@@ -37,7 +37,7 @@ jobs:
       - name: Build container image
         uses: docker/build-push-action@v2
         with:
-          context: "forstegangssoknader"
+          context: "forstegangssoknad"
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           pull: true
