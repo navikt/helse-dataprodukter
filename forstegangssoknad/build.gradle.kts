@@ -11,6 +11,7 @@ repositories {
 }
 
 dependencies {
+    implementation("com.github.navikt:rapids-and-rivers:2022112407251669271100.df879df951cf")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     testImplementation(kotlin("test"))
