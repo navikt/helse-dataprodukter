@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 class Førstegangssøknad {
 
+    val søknadsPerioder = mutableListOf<Periode>()
 
     fun handle(søknad: Søknad): Boolean {
         return true
