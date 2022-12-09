@@ -1,27 +1,23 @@
 import no.nav.helse.Førstegangssøknad
 import no.nav.helse.Søknad
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Disabled
+import no.nav.helse.februar
+import no.nav.helse.januar
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 
 internal class FørstegangssøknadTest {
 
     @Test
     fun `Første søknad mottatt er førstegangsbehandling`() {
         val fgb = Førstegangssøknad()
-        assertTrue(fgb.handle(Søknad(1.januar(), 31.januar(), 31.januar())))
+        assertTrue(fgb.handle(Søknad(1.januar(2022), 31.januar(2022), 31.januar(2022))))
     }
 
-    @Disabled
     @Test
     fun `Tilstøtende søknad er ikke førstegangsbehandling`() {
         val fgb = Førstegangssøknad()
-        assertTrue(fgb.handle(Søknad(1.januar(), 31.januar(), 31.januar())))
-        assertFalse(fgb.handle(Søknad(1.februar(), 28.februar(), 28.februar())))
+        assertTrue(fgb.handle(Søknad(1.januar(2022), 31.januar(2022), 31.januar(2022))))
+        assertFalse(fgb.handle(Søknad(1.februar(2022), 28.februar(2022), 28.februar(2022))))
     }
-
-
-
 }
-

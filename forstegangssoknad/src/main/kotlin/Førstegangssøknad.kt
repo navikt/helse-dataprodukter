@@ -1,14 +1,21 @@
 package no.nav.helse
 
-import java.time.LocalDateTime
+import no.nav.helse.Periode.Companion.grupperSammenhengendePerioderMedHensynTilHelg
+import java.time.LocalDate
 
 class Førstegangssøknad {
 
-    val søknadsPerioder = mutableListOf<Periode>()
+    var søknadsPerioder = mutableListOf<Periode>()
 
     fun handle(søknad: Søknad): Boolean {
-        return true
+        val antallFørstegangssøknad = søknadsPerioder.size
+        søknadsPerioder.add(Periode(søknad.fom, søknad.tom))
+        val nyeSøknadsPerioder = søknadsPerioder.grupperSammenhengendePerioderMedHensynTilHelg()
+        val nyttAntallFørstegangssøknad = nyeSøknadsPerioder.size
+        søknadsPerioder = nyeSøknadsPerioder.toMutableList()
+
+        return nyttAntallFørstegangssøknad > antallFørstegangssøknad
     }
 }
 
-data class Søknad(val fom: LocalDateTime, val tom: LocalDateTime, val arbeidGjenopptatt: LocalDateTime)
+data class Søknad(val fom: LocalDate, val tom: LocalDate, val arbeidGjenopptatt: LocalDate)
