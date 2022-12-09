@@ -7,14 +7,22 @@ class Førstegangssøknad {
 
     var søknadsPerioder = mutableListOf<Periode>()
 
-    fun handle(søknad: Søknad): Boolean {
+
+    /**
+     * Mottar søknader og returnerer om søknaden er av typen førstegangsbehandling
+     */
+    fun motta(søknad: Søknad): Boolean {
         val antallFørstegangssøknad = søknadsPerioder.size
-        søknadsPerioder.add(Periode(søknad.fom, søknad.tom))
+        søknadsPerioder.add(Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt)))
         val nyeSøknadsPerioder = søknadsPerioder.grupperSammenhengendePerioderMedHensynTilHelg()
         val nyttAntallFørstegangssøknad = nyeSøknadsPerioder.size
         søknadsPerioder = nyeSøknadsPerioder.toMutableList()
 
         return nyttAntallFørstegangssøknad > antallFørstegangssøknad
+    }
+
+    override fun toString(): String {
+        return søknadsPerioder.toString()
     }
 }
 
