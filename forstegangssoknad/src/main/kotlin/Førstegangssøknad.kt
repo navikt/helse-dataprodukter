@@ -1,7 +1,9 @@
 package no.nav.helse
 
+import io.prometheus.client.Counter
 import no.nav.helse.rapids_rivers.*
 
+val messageCounter = Counter.build("soknader_lest", "Antall førstegangssøknader lest").register()
 
 internal class Førstegangssøknad(
     rapidsConnection: RapidsConnection
@@ -9,10 +11,7 @@ internal class Førstegangssøknad(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "my_event") }
-            validate { it.requireKey("a_required_key") }
-            // nested objects can be chained using "."
-            validate { it.requireValue("nested.key", "works_as_well") }
+            validate { it.demandValue("@event_name", "sendt_søknad_nav") }
         }.register(this)
     }
 
@@ -22,5 +21,6 @@ internal class Førstegangssøknad(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        messageCounter.inc()
     }
 }
