@@ -7,7 +7,7 @@ fun main() {
 
 
     RapidApplication.create(env).apply {
-        Førstegangssøknad(this)
+        SøknadsRiver(this)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
