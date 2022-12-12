@@ -13,7 +13,7 @@ class Førstegangssøknad {
      */
     fun motta(søknad: Søknad): Boolean {
         val antallFørstegangssøknad = søknadsPerioder.size
-        søknadsPerioder.add(Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt)))
+        søknadsPerioder.add(Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt ?: LocalDate.MAX)))
         val nyeSøknadsPerioder = søknadsPerioder.grupperSammenhengendePerioderMedHensynTilHelg()
         val nyttAntallFørstegangssøknad = nyeSøknadsPerioder.size
         søknadsPerioder = nyeSøknadsPerioder.toMutableList()
@@ -26,4 +26,4 @@ class Førstegangssøknad {
     }
 }
 
-data class Søknad(val fom: LocalDate, val tom: LocalDate, val arbeidGjenopptatt: LocalDate)
+data class Søknad(val fnr: String, val orgnummer: String, val fom: LocalDate, val tom: LocalDate, val arbeidGjenopptatt: LocalDate?)
