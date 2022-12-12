@@ -2,6 +2,8 @@ package no.nav.helse
 
 import no.nav.helse.Periode.Companion.grupperSammenhengendePerioderMedHensynTilHelg
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
 
 class Førstegangssøknad {
 
@@ -26,4 +28,14 @@ class Førstegangssøknad {
     }
 }
 
-data class Søknad(val fnr: String, val orgnummer: String, val fom: LocalDate, val tom: LocalDate, val arbeidGjenopptatt: LocalDate?)
+data class Søknad(
+    val id: UUID,
+    val søkandsId: UUID,
+    val sykemeldingId: UUID,
+    val fnr: String,
+    val orgnummer: String,
+    val fom: LocalDate,
+    val tom: LocalDate,
+    val arbeidGjenopptatt: LocalDate?,
+    val opprettet: LocalDateTime
+)

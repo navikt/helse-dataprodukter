@@ -1,9 +1,9 @@
+import FørstegangssøknadTest.Companion.søknad
 import TestDatasource.migratedDb
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.helse.FørstegangssøknadDao
-import no.nav.helse.Søknad
+import no.nav.helse.FørstegangsbehandlingDao
 import no.nav.helse.januar
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Assertions.*
@@ -13,10 +13,11 @@ import org.junit.jupiter.api.TestInstance
 import org.testcontainers.containers.PostgreSQLContainer
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class FørstegangssøknadDaoTest {
+internal class FørstegangsbehandlingDaoTest {
 
     private val db = migratedDb
-    private val dao = FørstegangssøknadDao(db)
+    private val dao = FørstegangsbehandlingDao(db)
+
 
     @BeforeEach
     fun reset() = resetDatabase()
@@ -24,8 +25,10 @@ internal class FørstegangssøknadDaoTest {
 
     @Test
     fun `insert førstegangssøknad`() {
-        val result = dao.lagre(Søknad("12345678910", "123456789", 1.januar(2022), 31.januar(2022), null))
-        assertTrue(result == 1L) {"PersonOgOrgnummer ref: $result er ikke riktig"}
+        val testSøknad = søknad( 1.januar(2022), 31.januar(2022), null)
+        val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
+        val result = dao.lagreSøknad(personRef, testSøknad, true)
+        assertTrue(result == 1) {"PersonOgOrgnummer ref: $result er ikke riktig"}
     }
 }
 

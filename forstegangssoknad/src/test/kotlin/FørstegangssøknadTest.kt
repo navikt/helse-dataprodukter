@@ -6,8 +6,24 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
 
 internal class FørstegangssøknadTest {
+
+    companion object {
+        internal fun søknad(fom: LocalDate, tom: LocalDate, arbeidGjenopptatt: LocalDate?) = Søknad(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "12345678910",
+            "123456789",
+            fom,
+            tom,
+            arbeidGjenopptatt,
+            LocalDateTime.now()
+        )
+    }
 
     @Test
     fun `Første søknad mottatt er førstegangsbehandling`() {
@@ -29,7 +45,6 @@ internal class FørstegangssøknadTest {
         assertFalse(fgb.motta(søknad(10.januar(2022), 31.januar(2022), 31.januar(2022))))
     }
 
-    private fun søknad(fom: LocalDate, tom: LocalDate, arbeidGjenopptatt: LocalDate?) = Søknad("123", "123", fom, tom, arbeidGjenopptatt)
 
     @Test
     fun `Arbeid gjennopptatt avkutter søknadsperioden`() {
