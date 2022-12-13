@@ -1,4 +1,4 @@
-import no.nav.helse.Førstegangssøknad
+import no.nav.helse.Førstegangsbehandling
 import no.nav.helse.Søknad
 import no.nav.helse.februar
 import no.nav.helse.januar
@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-internal class FørstegangssøknadTest {
+internal class FørstegangsbehandlingTest {
 
     companion object {
         internal fun lagSøknad(fom: LocalDate, tom: LocalDate, arbeidGjenopptatt: LocalDate?) = Søknad(
@@ -26,7 +26,7 @@ internal class FørstegangssøknadTest {
 
     @Test
     fun `Første søknad mottatt er førstegangsbehandling`() {
-        val fgb = Førstegangssøknad()
+        val fgb = Førstegangsbehandling()
         val søknad = lagSøknad(1.januar(2022), 31.januar(2022), 31.januar(2022))
         fgb.motta(søknad)
         assertTrue(fgb.førstegangsbehandlinger()[0] == søknad.id)
@@ -34,7 +34,7 @@ internal class FørstegangssøknadTest {
 
     @Test
     fun `Tilstøtende søknad er ikke førstegangsbehandling`() {
-        val fgb = Førstegangssøknad()
+        val fgb = Førstegangsbehandling()
         val søknad = lagSøknad(1.januar(2022), 31.januar(2022), 31.januar(2022))
         fgb.motta(søknad)
         fgb.motta(lagSøknad(1.februar(2022), 28.februar(2022), 28.februar(2022)))
@@ -44,7 +44,7 @@ internal class FørstegangssøknadTest {
 
     @Test
     fun `To søknader seprarert av helg er tilstøtende`() {
-        val fgb = Førstegangssøknad()
+        val fgb = Førstegangsbehandling()
         val først = lagSøknad(3.januar(2022), 7.januar(2022), 7.januar(2022))
         fgb.motta(først)
         fgb.motta(lagSøknad(10.januar(2022), 31.januar(2022), 31.januar(2022)))
@@ -55,7 +55,7 @@ internal class FørstegangssøknadTest {
 
     @Test
     fun `Arbeid gjennopptatt avkutter søknadsperioden`() {
-        val fgb = Førstegangssøknad()
+        val fgb = Førstegangsbehandling()
         val først = lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022))
         val sist = lagSøknad(1.februar(2022), 28.februar(2022), 28.februar(2022))
         fgb.motta(først)

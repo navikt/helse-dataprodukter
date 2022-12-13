@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class Førstegangssøknad {
+class Førstegangsbehandling {
 
     private var søknadsPerioder = mutableListOf<Periode>()
     private val søknader = mutableListOf<Søknad>()
@@ -26,11 +26,10 @@ class Førstegangssøknad {
         .map { periode -> søknader.last { it.fom == periode.start } }
         .map { it.id }
 
-    internal fun Ikkeførstegangsbehandlinger(): List<UUID> {
+    internal fun mapping(): List<Pair<UUID, Boolean>> {
         val førstegangsbehandlinger = førstegangsbehandlinger()
-        return søknader.map { it.id }.filterNot {
-            it in førstegangsbehandlinger
-        }
+        val forlengelser = søknader.map { it.id }.filterNot { it in førstegangsbehandlinger }
+        return førstegangsbehandlinger.map { it to true } + forlengelser.map { it to false }
     }
 
     override fun toString(): String {

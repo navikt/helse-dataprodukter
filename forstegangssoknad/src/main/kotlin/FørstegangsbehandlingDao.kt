@@ -1,9 +1,11 @@
 package no.nav.helse
 
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
+import java.util.*
 import javax.sql.DataSource
 
 class FørstegangsbehandlingDao(private val dataSource: DataSource) {
@@ -34,7 +36,7 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
             ).asUpdate.runWithSession(session)
         }
 
-        private fun refFor(fnr: String, orgnummer: String): Long?  = sessionOf(dataSource).use { session ->
+        internal fun refFor(fnr: String, orgnummer: String): Long  = sessionOf(dataSource).use { session ->
             @Language("PostgreSQL")
             val statement = """ 
             SELECT id FROM person where fnr = :fnr AND organisasjonsnummer = :organisasjonsnummer;
@@ -47,13 +49,13 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
                 )
             ).map { it.long("id") }
                 .asSingle
-                .runWithSession(session)
+                .runWithSession(session) ?: throw IllegalStateException("Fant ikke ref til fnr, orgnummer i person tabell")
 
         }
 
         internal fun lagrePerson(fnr: String, orgnummer: String): Long {
             oppdaterPersonTabell(fnr, orgnummer)
-            return refFor(fnr, orgnummer) ?: throw IllegalStateException("Fant ikke ref til fnr, orgnummer i person tabell")
+            return refFor(fnr, orgnummer)
         }
 
         private fun oppdaterPersonTabell(fnr: String, orgnummer: String) = sessionOf(dataSource).use { session ->
@@ -71,10 +73,12 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
             ).asUpdate.runWithSession(session)
         }
 
-    fun hentSøknader(personRef: Long, fnr: String, orgnummer: String)  = sessionOf(dataSource).use { session ->
+    internal fun hentSøknader(personRef: Long)  = sessionOf(dataSource).use { session ->
         @Language("PostgreSQL")
         val statement = """ 
-            SELECT * FROM søknad WHERE person_ref = :person_ref
+            SELECT * FROM søknad 
+            JOIN person ON person_ref = :person_ref
+            WHERE person_ref = :person_ref
         """.trimMargin()
         queryOf(
             statement,
@@ -85,8 +89,8 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
             it.uuid("hendelse_id"),
             it.uuid("soknad_id"),
             it.uuid("sykmelding_id"),
-            fnr,
-            orgnummer,
+            it.string("fnr"),
+            it.string("organisasjonsnummer"),
             it.localDate("fom"),
             it.localDate("tom"),
             it.localDateOrNull("arbeid_gjenopptatt"),
@@ -94,4 +98,43 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
         }.asList.runWithSession(session)
     }
 
+    internal fun oppdaterSøknader(personRef: Long, updateMap: List<Pair<UUID, Boolean>>) = sessionOf(dataSource).use { session ->
+        val førstegangsbehandlinger = updateMap.førstegangsbehandlinger()
+        val forlengelser = updateMap.forlengelser()
+        session.transaction {
+            if(førstegangsbehandlinger.isNotEmpty()) it.oppdaterSøknader(personRef, førstegangsbehandlinger, true)
+            if(forlengelser.isNotEmpty()) it.oppdaterSøknader(personRef, forlengelser , false)
+        }
+    }
+
+    private fun TransactionalSession.oppdaterSøknader(personRef: Long, hendelseIder: List<UUID>, førstegangsbehandling: Boolean)  {
+        @Language("PostgreSQL")
+        val statement = """ 
+            UPDATE søknad
+            SET forstegangsbehandling = :erForstegangsbehandling
+            WHERE søknad.person_ref = :person_ref AND hendelse_id::text IN (:hendelseIder);
+        """.trimMargin()
+        queryOf(
+            statement,
+            mapOf(
+                "person_ref" to personRef,
+                "hendelseIder" to hendelseIder.toSQLValues(),
+                "erForstegangsbehandling" to førstegangsbehandling
+            )
+        ).asUpdate.runWithSession(this)
+    }
+}
+
+
+internal fun List<Pair<UUID, Boolean>>.førstegangsbehandlinger() =
+    filter { it.second }.map { it.first }
+
+internal fun List<Pair<UUID, Boolean>>.forlengelser() =
+    filter { !it.second }.map { it.first }
+
+
+fun List<UUID>.toSQLValues() = map { it.toString() }
+        .reduceIndexed { i, acc, s ->
+            if(i == 0 ) { s }
+            else { ", $s" }
 }

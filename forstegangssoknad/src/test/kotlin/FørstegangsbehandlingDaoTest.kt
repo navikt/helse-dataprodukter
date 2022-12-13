@@ -1,4 +1,4 @@
-import FørstegangssøknadTest.Companion.lagSøknad
+import FørstegangsbehandlingTest.Companion.lagSøknad
 import TestDatasource.migratedDb
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.queryOf
@@ -39,7 +39,7 @@ internal class FørstegangsbehandlingDaoTest {
         val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
         dao.lagreSøknad(personRef, testSøknad, true)
         dao.lagreSøknad(personRef, testSøknad2, false)
-        val søkander = dao.hentSøknader(personRef, testSøknad.fnr, testSøknad.orgnummer)
+        val søkander = dao.hentSøknader(personRef)
         assertEquals(testSøknad, søkander[0])
         assertEquals(testSøknad2, søkander[1])
     }
@@ -58,8 +58,8 @@ object PostgresContainer {
     }
 }
 
-object TestDatasource {
-    private val instance: HikariDataSource by lazy {
+internal object TestDatasource {
+    val instance: HikariDataSource by lazy {
         HikariDataSource().apply {
             initializationFailTimeout = 5000
             username = PostgresContainer.instance.username
@@ -72,7 +72,7 @@ object TestDatasource {
     val migratedDb = instance.also { migrate(it) }
 }
 
-private val tabeller = listOf("person")
+internal val tabeller = listOf("person", "søknad")
 fun resetDatabase() {
     //migrate(migratedDb)
     sessionOf(migratedDb).use { session ->
@@ -82,7 +82,7 @@ fun resetDatabase() {
     }
 }
 
-private fun migrate(dataSource: HikariDataSource) =
+internal fun migrate(dataSource: HikariDataSource) =
     Flyway.configure()
         .dataSource(dataSource)
         .cleanDisabled(false)
