@@ -40,8 +40,8 @@ internal class FørstegangsbehandlingDaoTest {
         dao.lagreSøknad(personRef, testSøknad, true)
         dao.lagreSøknad(personRef, testSøknad2, false)
         val søkander = dao.hentSøknader(personRef)
-        assertEquals(testSøknad, søkander[0])
-        assertEquals(testSøknad2, søkander[1])
+        assertEquals(testSøknad, søkander[0]) {"Wrong søknad: ${søkander[0]} should be ${testSøknad.id}"}
+        assertEquals(testSøknad2, søkander[1]) {"Wrong søknad: ${søkander[1]} should be ${testSøknad2.id}"}
     }
 }
 

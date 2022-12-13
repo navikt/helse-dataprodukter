@@ -6,10 +6,6 @@ plugins {
 }
 group = "no.nav.helse"
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation("com.github.navikt:rapids-and-rivers:2022112407251669271100.df879df951cf")
     implementation("org.flywaydb:flyway-core:9.10.0")
@@ -24,10 +20,10 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
-        events("failed")
+        events("skipped", "failed")
     }
 
 }
