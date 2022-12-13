@@ -15,6 +15,7 @@ class SøkandMediator(private val rapidsConnection: RapidsConnection, private va
         val søknadsPerioder = hentSøkandsperioder(personRef)
         søknadsPerioder.motta(søknad)
         val updateMap = søknadsPerioder.mapping()
+        dao.lagreSøknad(personRef, søknad, updateMap.find { it.first == søknad.id }!!.second)
         dao.oppdaterSøknader(personRef, updateMap)
     }
 

@@ -31,7 +31,7 @@ class E2ETest {
         rapid.sendTestMessage(testSøknad)
         val ref = dao.refFor("27845899830", "805824352")
         val søknader = dao.hentSøknader(ref)
-        assertEquals("8d7d8de1-5d4e-3750-81d4-8d0adfecbc2a".toUUID(), søknader.first().id)
+        assertEquals("f93baf8c-3782-4dcb-9704-bfeb44e44e74".toUUID(), søknader.first().id)
     }
 
 }
