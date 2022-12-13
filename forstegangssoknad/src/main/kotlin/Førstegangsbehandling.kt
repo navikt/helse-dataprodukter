@@ -16,14 +16,13 @@ class Førstegangsbehandling {
      */
     internal fun motta(søknad: Søknad) {
         søknader.add(søknad)
-        søknader.sortBy { it.fom }
         søknadsPerioder.add(Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt ?: LocalDate.MAX)))
         val nyeSøknadsPerioder = søknadsPerioder.grupperSammenhengendePerioderMedHensynTilHelg()
         søknadsPerioder = nyeSøknadsPerioder.toMutableList()
     }
 
     internal fun førstegangsbehandlinger() = søknadsPerioder
-        .map { periode -> søknader.last { it.fom == periode.start } }
+        .map { periode -> søknader.sortedBy { it.opprettet }.last { it.fom == periode.start } }
         .map { it.id }
 
     internal fun mapping(): List<Pair<UUID, Boolean>> {

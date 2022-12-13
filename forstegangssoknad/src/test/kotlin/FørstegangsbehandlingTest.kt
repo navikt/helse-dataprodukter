@@ -7,12 +7,19 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.test.assertEquals
 
 internal class FørstegangsbehandlingTest {
 
     companion object {
-        internal fun lagSøknad(fom: LocalDate, tom: LocalDate, arbeidGjenopptatt: LocalDate?) = Søknad(
-            UUID.randomUUID(),
+        internal fun lagSøknad(
+            fom: LocalDate,
+            tom: LocalDate,
+            arbeidGjenopptatt: LocalDate?,
+            hendelseId: UUID = UUID.randomUUID(),
+            opprettet: LocalDateTime = LocalDateTime.now()
+        ) = Søknad(
+            hendelseId,
             UUID.randomUUID(),
             UUID.randomUUID(),
             "12345678910",
@@ -20,7 +27,7 @@ internal class FørstegangsbehandlingTest {
             fom,
             tom,
             arbeidGjenopptatt,
-            LocalDateTime.now()
+            opprettet
         )
     }
 
@@ -61,5 +68,21 @@ internal class FørstegangsbehandlingTest {
         fgb.motta(først)
         fgb.motta(sist)
         assertTrue(fgb.førstegangsbehandlinger().containsAll(listOf(først.id, sist.id)))
+    }
+
+
+    @Test
+    fun `sist opprettede søknad telles`() {
+        val fgb = Førstegangsbehandling()
+        val opprettet = LocalDateTime.of(2022, 1, 1, 1, 0)
+        val søknader = listOf(
+            lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet.plusDays(1)),
+            lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet),
+            lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet)
+        )
+        søknader.forEach { fgb.motta(it) }
+        val result = fgb.førstegangsbehandlinger()
+        assertEquals(1, result.size)
+        assertEquals(søknader[0].id, result.first())
     }
 }
