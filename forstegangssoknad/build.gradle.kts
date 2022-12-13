@@ -26,6 +26,10 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        events("failed")
+    }
+
 }
 
 tasks.withType<KotlinCompile> {
