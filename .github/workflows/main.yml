@@ -27,7 +27,7 @@ jobs:
           java-version: '17.x'
           cache: 'gradle'
       - name: test and build
-        run: ./gradlew test build
+        run: ./gradlew test build --stacktrace
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
