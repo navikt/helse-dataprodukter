@@ -33,6 +33,7 @@ spec:
       - type: POSTGRES_14
         diskAutoresize: true
         databases:
+          - name: forstegangssoknad
             envVarPrefix: DATABASE
   secureLogs:
     enabled: true
