@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.FørstegangsbehandlingDao
+import no.nav.helse.februar
 import no.nav.helse.januar
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Assertions.*
@@ -29,6 +30,18 @@ internal class FørstegangsbehandlingDaoTest {
         val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
         val result = dao.lagreSøknad(personRef, testSøknad, true)
         assertTrue(result == 1) {"PersonOgOrgnummer ref: $result er ikke riktig"}
+    }
+
+    @Test
+    fun `hent søkander for personRef`() {
+        val testSøknad = lagSøknad( 1.januar(2022), 31.januar(2022), null)
+        val testSøknad2 = lagSøknad( 1.februar(2022), 28.februar(2022), null)
+        val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
+        dao.lagreSøknad(personRef, testSøknad, true)
+        dao.lagreSøknad(personRef, testSøknad2, false)
+        val søkander = dao.hentSøknader(personRef, testSøknad.fnr, testSøknad.orgnummer)
+        assertEquals(testSøknad, søkander[0])
+        assertEquals(testSøknad2, søkander[1])
     }
 }
 

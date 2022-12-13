@@ -38,7 +38,7 @@ class Førstegangssøknad {
     }
 }
 
-class Søknad(
+data class Søknad(
     val id: UUID,
     val søkandsId: UUID,
     val sykemeldingId: UUID,

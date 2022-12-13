@@ -71,4 +71,27 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
             ).asUpdate.runWithSession(session)
         }
 
+    fun hentSøknader(personRef: Long, fnr: String, orgnummer: String)  = sessionOf(dataSource).use { session ->
+        @Language("PostgreSQL")
+        val statement = """ 
+            SELECT * FROM søknad WHERE person_ref = :person_ref
+        """.trimMargin()
+        queryOf(
+            statement,
+            mapOf(
+                "person_ref" to personRef
+            )
+        ).map { Søknad(
+            it.uuid("hendelse_id"),
+            it.uuid("soknad_id"),
+            it.uuid("sykmelding_id"),
+            fnr,
+            orgnummer,
+            it.localDate("fom"),
+            it.localDate("tom"),
+            it.localDateOrNull("arbeid_gjenopptatt"),
+            it.localDateTime("opprettet"))
+        }.asList.runWithSession(session)
     }
+
+}
