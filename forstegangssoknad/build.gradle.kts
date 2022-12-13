@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -24,8 +25,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         events("skipped", "failed")
-    }
-
 }
 
 tasks.withType<KotlinCompile> {
