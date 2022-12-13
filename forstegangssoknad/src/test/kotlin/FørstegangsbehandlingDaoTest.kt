@@ -1,4 +1,4 @@
-import FørstegangssøknadTest.Companion.søknad
+import FørstegangssøknadTest.Companion.lagSøknad
 import TestDatasource.migratedDb
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.queryOf
@@ -25,7 +25,7 @@ internal class FørstegangsbehandlingDaoTest {
 
     @Test
     fun `insert førstegangssøknad`() {
-        val testSøknad = søknad( 1.januar(2022), 31.januar(2022), null)
+        val testSøknad = lagSøknad( 1.januar(2022), 31.januar(2022), null)
         val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
         val result = dao.lagreSøknad(personRef, testSøknad, true)
         assertTrue(result == 1) {"PersonOgOrgnummer ref: $result er ikke riktig"}

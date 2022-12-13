@@ -7,20 +7,30 @@ import java.util.UUID
 
 class Førstegangssøknad {
 
-    var søknadsPerioder = mutableListOf<Periode>()
+    private var søknadsPerioder = mutableListOf<Periode>()
+    private val søknader = mutableListOf<Søknad>()
 
 
     /**
      * Mottar søknader og returnerer om søknaden er av typen førstegangsbehandling
      */
-    fun motta(søknad: Søknad): Boolean {
-        val antallFørstegangssøknad = søknadsPerioder.size
+    internal fun motta(søknad: Søknad) {
+        søknader.add(søknad)
+        søknader.sortBy { it.fom }
         søknadsPerioder.add(Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt ?: LocalDate.MAX)))
         val nyeSøknadsPerioder = søknadsPerioder.grupperSammenhengendePerioderMedHensynTilHelg()
-        val nyttAntallFørstegangssøknad = nyeSøknadsPerioder.size
         søknadsPerioder = nyeSøknadsPerioder.toMutableList()
+    }
 
-        return nyttAntallFørstegangssøknad > antallFørstegangssøknad
+    internal fun førstegangsbehandlinger() = søknadsPerioder
+        .map { periode -> søknader.last { it.fom == periode.start } }
+        .map { it.id }
+
+    internal fun Ikkeførstegangsbehandlinger(): List<UUID> {
+        val førstegangsbehandlinger = førstegangsbehandlinger()
+        return søknader.map { it.id }.filterNot {
+            it in førstegangsbehandlinger
+        }
     }
 
     override fun toString(): String {
@@ -28,7 +38,7 @@ class Førstegangssøknad {
     }
 }
 
-data class Søknad(
+class Søknad(
     val id: UUID,
     val søkandsId: UUID,
     val sykemeldingId: UUID,
