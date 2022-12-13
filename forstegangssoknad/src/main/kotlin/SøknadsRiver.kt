@@ -23,7 +23,7 @@ internal class SøknadsRiver(
                     "arbeidsgiver.orgnummer",
                     "fom",
                     "tom",
-                    "sendtNav",
+                    "@opprettet",
                 )
                 it.interestedIn("arbeidGjenopptatt")
             }
@@ -46,7 +46,7 @@ internal class SøknadsRiver(
             packet["fom"].asLocalDate(),
             packet["tom"].asLocalDate(),
             packet["arbeidGjenopptatt"].asOptionalLocalDate(),
-            packet["sendtNav"].asLocalDateTime(),
+            packet["@opprettet"].asLocalDateTime(),
         )
         mediator.håndter(søknad)
     }
