@@ -12,10 +12,9 @@ class SøkandMediator(private val rapidsConnection: RapidsConnection, private va
     fun håndter(søknad: Søknad) {
         dao.lagrePerson(søknad.fnr, søknad.orgnummer)
         val personRef = dao.refFor(søknad.fnr, søknad.orgnummer)
+        dao.lagreSøknad(personRef, søknad, false)
         val søknadsPerioder = hentSøkandsperioder(personRef)
-        søknadsPerioder.motta(søknad)
         val updateMap = søknadsPerioder.mapping()
-        dao.lagreSøknad(personRef, søknad, updateMap.find { it.first == søknad.id }!!.second)
         dao.oppdaterSøknader(personRef, updateMap)
     }
 

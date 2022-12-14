@@ -99,27 +99,24 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
     }
 
     internal fun oppdaterSøknader(personRef: Long, updateMap: List<Pair<UUID, Boolean>>) = sessionOf(dataSource).use { session ->
-        val førstegangsbehandlinger = updateMap.førstegangsbehandlinger()
-        val forlengelser = updateMap.forlengelser()
-        session.transaction {
-            if(førstegangsbehandlinger.isNotEmpty()) it.oppdaterSøknader(personRef, førstegangsbehandlinger, true)
-            if(forlengelser.isNotEmpty()) it.oppdaterSøknader(personRef, forlengelser , false)
+        session.transaction { transaction ->
+            updateMap.forEach { update -> transaction.oppdaterSøknader(personRef, update.first,  update.second) }
         }
     }
 
-    private fun TransactionalSession.oppdaterSøknader(personRef: Long, hendelseIder: List<UUID>, førstegangsbehandling: Boolean)  {
+    private fun TransactionalSession.oppdaterSøknader(personRef: Long, hendelseId: UUID, førstegangsbehandling: Boolean)  {
         @Language("PostgreSQL")
         val statement = """ 
             UPDATE søknad
-            SET forstegangsbehandling = :erForstegangsbehandling
-            WHERE søknad.person_ref = :person_ref AND hendelse_id::text IN (:hendelseIder);
+            SET forstegangsbehandling = :er_forstegangsbehandling
+            WHERE søknad.person_ref = :person_ref AND hendelse_id = :hendelse_id
         """.trimMargin()
         queryOf(
             statement,
             mapOf(
                 "person_ref" to personRef,
-                "hendelseIder" to hendelseIder.toSQLValues(),
-                "erForstegangsbehandling" to førstegangsbehandling
+                "hendelse_id" to hendelseId,
+                "er_forstegangsbehandling" to førstegangsbehandling
             )
         ).asUpdate.runWithSession(this)
     }
@@ -136,5 +133,7 @@ internal fun List<Pair<UUID, Boolean>>.forlengelser() =
 fun List<UUID>.toSQLValues() = map { it.toString() }
         .reduceIndexed { i, acc, s ->
             if(i == 0 ) { s }
-            else { ", $s" }
+            else {
+                "$acc, $s"
+            }
 }

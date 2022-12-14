@@ -7,11 +7,14 @@ import no.nav.helse.FørstegangsbehandlingDao
 import no.nav.helse.februar
 import no.nav.helse.januar
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.internal.logging.slf4j.Slf4jLog
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.platform.commons.logging.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.containers.output.Slf4jLogConsumer
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class FørstegangsbehandlingDaoTest {
@@ -53,7 +56,9 @@ object PostgresContainer {
         PostgreSQLContainer<Nothing>("postgres:14").apply {
             withReuse(true)
             withLabel("app-navn", "forstegangssoknader")
+            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all");
             start()
+            followOutput(Slf4jLogConsumer(org.slf4j.LoggerFactory.getLogger("postgres")));
         }
     }
 }
