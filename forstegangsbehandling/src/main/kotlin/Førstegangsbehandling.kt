@@ -11,9 +11,6 @@ class Førstegangsbehandling {
     private val søknader = mutableListOf<Søknad>()
 
 
-    /**
-     * Mottar søknader og returnerer om søknaden er av typen førstegangsbehandling
-     */
     internal fun motta(søknad: Søknad) {
         søknader.add(søknad)
         søknadsPerioder.add(Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt ?: LocalDate.MAX)))

@@ -22,33 +22,32 @@ class E2ETest {
 
     @Test
     fun `Person ender opp i databasen`() {
-        val mediator = SøkandMediator(rapid, dao)
+        SøkandMediator(rapid, dao)
         rapid.sendTestMessage(testSøknad("2022-10-01", "2022-10-31"))
         val result = dao.refFor("27845899830", "805824352")
         assertEquals(1L, result)
     }
     @Test
     fun `Førstegangsbehandling ender i databasen`() {
-        val mediator = SøkandMediator(rapid, dao)
+        SøkandMediator(rapid, dao)
         rapid.sendTestMessage(testSøknad("2022-10-01", "2022-10-31"))
         val ref = dao.refFor("27845899830", "805824352")
         val søknader = dao.hentSøknader(ref)
-        assertEquals("f93baf8c-3782-4dcb-9704-bfeb44e44e74".toUUID(), søknader.first().id)
+        assertEquals(1, søknader.size)
     }
 
-    @Test
-    fun `Førstegangsbehandling endring registres i database`() {
-        val mediator = SøkandMediator(rapid, dao)
-        val t1 = testSøknad("2022-10-01", "2022-10-31")
-        val t2 = testSøknad("2022-10-01", "2022-10-31")
-        val t3 = testSøknad("2022-10-01", "2022-10-31")
-
-        rapid.sendTestMessage(t1)
-        rapid.sendTestMessage(t2)
-        rapid.sendTestMessage(t3)
-        val ref = dao.refFor("27845899830", "805824352")
-        val søknader = dao.hentSøknader(ref)
-    }
+//    @Test
+//    fun `Førstegangsbehandling endring registres i database`() {
+//        SøkandMediator(rapid, dao)
+//        val t1 = testSøknad("2022-10-01", "2022-10-31")
+//        val t2 = testSøknad("2022-10-01", "2022-10-31")
+//        val t3 = testSøknad("2022-10-01", "2022-10-31")
+//
+//        rapid.sendTestMessage(t1)
+//        rapid.sendTestMessage(t2)
+//        rapid.sendTestMessage(t3)
+//
+//    }
 
 }
 

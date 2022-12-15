@@ -1,3 +1,3 @@
 
 rootProject.name = "helse-dataprodukter"
-include("forstegangssoknad")
+include("forstegangsbehandling")

@@ -11,7 +11,7 @@ on:
 
 env:
   DOCKER_REGISTRY: ghcr.io
-  DOCKER_IMAGE_NAME: ${{ github.repository_owner }}/helse-dataprodukter:${{ github.sha }}
+  DOCKER_IMAGE_NAME: ${{ github.repository_owner }}/helse-dataprodukter-fb:${{ github.sha }}
   TEAM: tbd
 
 
@@ -67,4 +67,18 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: forstegangssoknad/deploy/nais.yml
           VARS: forstegangssoknad/deploy/dev.yml
+          IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+
+  deployProd:
+    name: deploy to prod
+    needs: [build, snyk]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: forstegangssoknad/deploy/nais.yml
+          VARS: forstegangssoknad/deploy/prod.yml
           IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
