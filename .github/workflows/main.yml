@@ -37,7 +37,7 @@ jobs:
       - name: Build container image
         uses: docker/build-push-action@v2
         with:
-          context: "forstegangssoknad"
+          context: "forstegangsbehandling"
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           pull: true
@@ -65,8 +65,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: forstegangssoknad/deploy/nais.yml
-          VARS: forstegangssoknad/deploy/dev.yml
+          RESOURCE: forstegangsbehandling/deploy/nais.yml
+          VARS: forstegangsbehandling/deploy/dev.yml
           IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
 
   deployProd:
@@ -79,6 +79,6 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: forstegangssoknad/deploy/nais.yml
-          VARS: forstegangssoknad/deploy/prod.yml
+          RESOURCE: forstegangsbehandling/deploy/nais.yml
+          VARS: forstegangsbehandling/deploy/prod.yml
           IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
