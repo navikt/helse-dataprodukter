@@ -1,7 +1,11 @@
 package no.nav.helse
 
 import no.nav.helse.rapids_rivers.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.lang.IllegalArgumentException
+
+val logger: Logger = LoggerFactory.getLogger("forstegangsbehandling")
 
 fun main() {
     val env = System.getenv()

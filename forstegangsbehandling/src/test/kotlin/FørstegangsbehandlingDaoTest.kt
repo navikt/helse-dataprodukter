@@ -7,12 +7,10 @@ import no.nav.helse.FørstegangsbehandlingDao
 import no.nav.helse.februar
 import no.nav.helse.januar
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.internal.logging.slf4j.Slf4jLog
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.platform.commons.logging.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 
@@ -22,10 +20,8 @@ internal class FørstegangsbehandlingDaoTest {
     private val db = migratedDb
     private val dao = FørstegangsbehandlingDao(db)
 
-
     @BeforeEach
     fun reset() = resetDatabase()
-
 
     @Test
     fun `insert førstegangssøknad`() {
@@ -56,15 +52,15 @@ object PostgresContainer {
         PostgreSQLContainer<Nothing>("postgres:14").apply {
             withReuse(true)
             withLabel("app-navn", "forstegangssoknader")
-            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all");
+            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all")
             start()
-            followOutput(Slf4jLogConsumer(org.slf4j.LoggerFactory.getLogger("postgres")));
+            followOutput(Slf4jLogConsumer(org.slf4j.LoggerFactory.getLogger("postgres")))
         }
     }
 }
 
 internal object TestDatasource {
-    val instance: HikariDataSource by lazy {
+    private val instance: HikariDataSource by lazy {
         HikariDataSource().apply {
             initializationFailTimeout = 5000
             username = PostgresContainer.instance.username
@@ -79,7 +75,6 @@ internal object TestDatasource {
 
 internal val tabeller = listOf("person", "søknad")
 fun resetDatabase() {
-    //migrate(migratedDb)
     sessionOf(migratedDb).use { session ->
         tabeller.forEach {  table ->
             session.run(queryOf("truncate table $table cascade").asExecute)

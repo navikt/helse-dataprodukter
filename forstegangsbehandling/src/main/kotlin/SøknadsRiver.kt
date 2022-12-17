@@ -1,10 +1,10 @@
 package no.nav.helse
 
 import io.prometheus.client.Counter
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.rapids_rivers.*
-import java.lang.Exception
 
-val messageCounter = Counter.build("soknader_lest", "Antall førstegangssøknader lest").register()
+val messageCounter: Counter = Counter.build("soknader_lest", "Antall førstegangssøknader lest").register()
 
 internal class SøknadsRiver(
     rapidsConnection: RapidsConnection,
@@ -48,6 +48,7 @@ internal class SøknadsRiver(
             packet["arbeidGjenopptatt"].asOptionalLocalDate(),
             packet["@opprettet"].asLocalDateTime(),
         )
+        logger.info("Mottok søknad med {}", kv("sykmeldingId", søknad.sykemeldingId))
         mediator.håndter(søknad)
     }
 }
