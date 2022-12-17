@@ -1,5 +1,6 @@
 package no.nav.helse
 
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.rapids_rivers.RapidsConnection
 
 class SøknadMediator(rapidsConnection: RapidsConnection, private val dao: FørstegangsbehandlingDao) {
@@ -18,7 +19,7 @@ class SøknadMediator(rapidsConnection: RapidsConnection, private val dao: Førs
         logger.info("henter søknadsperioder")
         val søknadsPerioder = hentSøknadsperioder(personRef)
         val updateMap = søknadsPerioder.mapping()
-        logger.info("oppdaterer søknader")
+        logger.info("oppdaterer søknader for {} med data $updateMap", kv("personRef", personRef))
         dao.oppdaterSøknader(personRef, updateMap)
     }
 
