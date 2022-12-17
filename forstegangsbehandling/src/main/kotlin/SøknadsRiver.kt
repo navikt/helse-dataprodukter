@@ -3,6 +3,7 @@ package no.nav.helse
 import io.prometheus.client.Counter
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.rapids_rivers.*
+import java.time.Duration
 
 val messageCounter: Counter = Counter.build("soknader_lest", "Antall førstegangssøknader lest").register()
 
@@ -36,6 +37,7 @@ internal class SøknadsRiver(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        val start = System.nanoTime()
         messageCounter.inc()
         val søknad = Søknad(
             packet["@id"].asText().toUUID(),
@@ -50,9 +52,12 @@ internal class SøknadsRiver(
         )
         logger.info(
             "Mottok søknad med {}, {}",
-            kv("sykmeldingId", søknad.sykmeldingId),
+            kv("id", søknad.søknadId),
             kv("opprettet", søknad.opprettet)
         )
         mediator.håndter(søknad)
+        logger.info("Behandlet søknad med {} på ${forbruktTid(start)} ms", kv("id", søknad.søknadId))
     }
+
+    private fun forbruktTid(start: Long) = Duration.ofNanos(System.nanoTime() - start).toMillis()
 }
