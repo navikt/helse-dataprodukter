@@ -48,7 +48,11 @@ internal class SøknadsRiver(
             packet["arbeidGjenopptatt"].asOptionalLocalDate(),
             packet["@opprettet"].asLocalDateTime(),
         )
-        logger.info("Mottok søknad med {}", kv("sykmeldingId", søknad.sykmeldingId))
+        logger.info(
+            "Mottok søknad med {}, {}",
+            kv("sykmeldingId", søknad.sykmeldingId),
+            kv("opprettet", søknad.opprettet)
+        )
         mediator.håndter(søknad)
     }
 }

@@ -2,19 +2,23 @@ package no.nav.helse
 
 import no.nav.helse.rapids_rivers.RapidsConnection
 
-class SøknadMediator(private val rapidsConnection: RapidsConnection, private val dao: FørstegangsbehandlingDao) {
+class SøknadMediator(rapidsConnection: RapidsConnection, private val dao: FørstegangsbehandlingDao) {
 
     init {
         SøknadsRiver(rapidsConnection, this)
     }
 
-
     fun håndter(søknad: Søknad) {
+        logger.info("lagrer person")
         dao.lagrePerson(søknad.fnr, søknad.orgnummer)
+        logger.info("finner personRef")
         val personRef = dao.refFor(søknad.fnr, søknad.orgnummer)
+        logger.info("lagrer søknad")
         dao.lagreSøknad(personRef, søknad, false)
+        logger.info("henter søknadsperioder")
         val søknadsPerioder = hentSøknadsperioder(personRef)
         val updateMap = søknadsPerioder.mapping()
+        logger.info("oppdaterer søknader")
         dao.oppdaterSøknader(personRef, updateMap)
     }
 
