@@ -32,15 +32,15 @@ internal class FørstegangsbehandlingDaoTest {
     }
 
     @Test
-    fun `hent søkander for personRef`() {
+    fun `hent søknader for personRef`() {
         val testSøknad = lagSøknad( 1.januar(2022), 31.januar(2022), null)
         val testSøknad2 = lagSøknad( 1.februar(2022), 28.februar(2022), null)
         val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
         dao.lagreSøknad(personRef, testSøknad, true)
         dao.lagreSøknad(personRef, testSøknad2, false)
-        val søkander = dao.hentSøknader(personRef)
-        assertEquals(testSøknad.id, søkander[0].id) {"Wrong søknad: ${søkander[0]} should be ${testSøknad.id}"}
-        assertEquals(testSøknad2.id, søkander[1].id) {"Wrong søknad: ${søkander[1]} should be ${testSøknad2.id}"}
+        val søknader = dao.hentSøknader(personRef)
+        assertEquals(testSøknad.id, søknader[0].id) {"Wrong søknad: ${søknader[0]} should be ${testSøknad.id}"}
+        assertEquals(testSøknad2.id, søknader[1].id) {"Wrong søknad: ${søknader[1]} should be ${testSøknad2.id}"}
     }
 }
 

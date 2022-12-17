@@ -8,7 +8,7 @@ val messageCounter: Counter = Counter.build("soknader_lest", "Antall førstegang
 
 internal class SøknadsRiver(
     rapidsConnection: RapidsConnection,
-    private val mediator: SøkandMediator
+    private val mediator: SøknadMediator
 ) : River.PacketListener {
 
     init {
@@ -48,7 +48,7 @@ internal class SøknadsRiver(
             packet["arbeidGjenopptatt"].asOptionalLocalDate(),
             packet["@opprettet"].asLocalDateTime(),
         )
-        logger.info("Mottok søknad med {}", kv("sykmeldingId", søknad.sykemeldingId))
+        logger.info("Mottok søknad med {}", kv("sykmeldingId", søknad.sykmeldingId))
         mediator.håndter(søknad)
     }
 }

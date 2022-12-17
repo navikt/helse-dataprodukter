@@ -25,8 +25,8 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
                 mapOf(
                     "person_ref" to personRef,
                     "hendelse_id" to søknad.id,
-                    "soknad_id" to søknad.søkandsId,
-                    "sykmelding_id" to søknad.sykemeldingId,
+                    "soknad_id" to søknad.søknadId,
+                    "sykmelding_id" to søknad.sykmeldingId,
                     "opprettet" to søknad.opprettet,
                     "fom" to søknad.fom,
                     "tom" to søknad.tom,

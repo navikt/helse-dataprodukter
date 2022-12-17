@@ -1,12 +1,10 @@
 import TestDatasource.migratedDb
 import no.nav.helse.FørstegangsbehandlingDao
-import no.nav.helse.SøkandMediator
+import no.nav.helse.SøknadMediator
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import no.nav.helse.rapids_rivers.toUUID
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.assertEquals
 
@@ -22,14 +20,14 @@ class E2ETest {
 
     @Test
     fun `Person ender opp i databasen`() {
-        SøkandMediator(rapid, dao)
+        SøknadMediator(rapid, dao)
         rapid.sendTestMessage(testSøknad("2022-10-01", "2022-10-31"))
         val result = dao.refFor("27845899830", "805824352")
         assertEquals(1L, result)
     }
     @Test
     fun `Førstegangsbehandling ender i databasen`() {
-        SøkandMediator(rapid, dao)
+        SøknadMediator(rapid, dao)
         rapid.sendTestMessage(testSøknad("2022-10-01", "2022-10-31"))
         val ref = dao.refFor("27845899830", "805824352")
         val søknader = dao.hentSøknader(ref)
@@ -38,7 +36,7 @@ class E2ETest {
 
 //    @Test
 //    fun `Førstegangsbehandling endring registres i database`() {
-//        SøkandMediator(rapid, dao)
+//        SøknadMediator(rapid, dao)
 //        val t1 = testSøknad("2022-10-01", "2022-10-31")
 //        val t2 = testSøknad("2022-10-01", "2022-10-31")
 //        val t3 = testSøknad("2022-10-01", "2022-10-31")

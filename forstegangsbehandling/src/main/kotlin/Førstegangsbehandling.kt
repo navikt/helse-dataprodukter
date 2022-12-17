@@ -35,8 +35,8 @@ class Førstegangsbehandling {
 
 data class Søknad(
     val id: UUID,
-    val søkandsId: UUID,
-    val sykemeldingId: UUID,
+    val søknadId: UUID,
+    val sykmeldingId: UUID,
     val fnr: String,
     val orgnummer: String,
     val fom: LocalDate,

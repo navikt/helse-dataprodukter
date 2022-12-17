@@ -20,7 +20,7 @@ fun main() {
     )
 
     RapidApplication.create(env).apply {
-        SøkandMediator(this, FørstegangsbehandlingDao(datasource))
+        SøknadMediator(this, FørstegangsbehandlingDao(datasource))
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
