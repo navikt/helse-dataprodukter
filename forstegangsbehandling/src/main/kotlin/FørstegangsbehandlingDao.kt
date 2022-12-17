@@ -76,8 +76,8 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
     internal fun hentSøknader(personRef: Long)  = sessionOf(dataSource).use { session ->
         @Language("PostgreSQL")
         val statement = """ 
-            SELECT * FROM søknad 
-            JOIN person ON person_ref = :person_ref
+            SELECT * FROM søknad
+            JOIN person ON person.id = person_ref
             WHERE person_ref = :person_ref
         """.trimMargin()
         queryOf(
