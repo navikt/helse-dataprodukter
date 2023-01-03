@@ -9,8 +9,7 @@ internal interface IVedtakFattetMediator {
     fun håndter(vedtaksperiodeId: UUID, vedtak: Vedtak)
 }
 
-internal class VedtakFattetMediator(rapidsConnection: RapidsConnection, private val dao: VedtakFattetDao):
-    IVedtakFattetMediator {
+internal class VedtakFattetMediator(rapidsConnection: RapidsConnection, private val dao: VedtakFattetDao): IVedtakFattetMediator {
     private companion object {
         val logg: Logger = LoggerFactory.getLogger(VedtakFattetMediator::class.java)
     }
@@ -20,8 +19,8 @@ internal class VedtakFattetMediator(rapidsConnection: RapidsConnection, private 
     }
 
     override fun håndter(vedtaksperiodeId: UUID, vedtak: Vedtak) {
-//        dao.finnVedtakFor(vedtaksperiodeId)
-//            ?.håndterNyttVedtak(vedtak)
-//            ?: vedtak.lagre(dao)
+        dao.finnVedtakFor(vedtaksperiodeId)
+            ?.håndterNytt(vedtak, dao)
+            ?: vedtak.lagre(dao)
     }
 }
