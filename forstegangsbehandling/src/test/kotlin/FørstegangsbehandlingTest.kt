@@ -2,12 +2,11 @@ import no.nav.helse.Førstegangsbehandling
 import no.nav.helse.Søknad
 import no.nav.helse.februar
 import no.nav.helse.januar
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.test.assertEquals
 
 internal class FørstegangsbehandlingTest {
 

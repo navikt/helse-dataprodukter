@@ -8,16 +8,14 @@ group = "no.nav.helse"
 
 dependencies {
     implementation("com.github.navikt:rapids-and-rivers:2022112407251669271100.df879df951cf")
-    implementation("org.flywaydb:flyway-core:9.10.0")
+    implementation("org.flywaydb:flyway-core:9.10.2")
     implementation("com.github.seratch:kotliquery:1.9.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.5.1")
 
-
     testImplementation("org.testcontainers:postgresql:1.17.6")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
 }
 
 tasks.withType<Test> {

@@ -3,9 +3,9 @@ import no.nav.helse.IVedtakFattetMediator
 import no.nav.helse.Vedtak
 import no.nav.helse.VedtakFattetRiver
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.*
-import kotlin.test.assertEquals
 
 class VedtakFattetRiverTest {
     private val testRapid = TestRapid()

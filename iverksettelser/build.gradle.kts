@@ -13,11 +13,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.5.1")
 
-
     testImplementation("org.testcontainers:postgresql:1.17.6")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
-    testImplementation(kotlin("test"))
 }
 
 tasks.withType<Test> {
