@@ -38,11 +38,20 @@ class VedtakFattetDao(private val dataSource: DataSource) {
         @Language("PostgreSQL")
         val query = "DELETE FROM vedtak_fattet WHERE vedtaksperiode_id = ?"
         sessionOf(dataSource).use { session ->
-            session.run(queryOf(query, vedtaksperiodeId).asUpdate)
+            session.transaction { tx ->
+                tx.run(queryOf(query, vedtaksperiodeId).asUpdate)
+                tx.fjernHendelserFor(vedtaksperiodeId)
+            }
         }
     }
 
-    internal fun lagre(hendelseId: UUID, vedtaksperiodeId: UUID, utbetalingId: UUID?, korrelasjonsId: UUID?, fattetTidspunkt: LocalDateTime) {
+    private fun TransactionalSession.fjernHendelserFor(vedtaksperiodeId: UUID) {
+        @Language("PostgreSQL")
+        val query = "DELETE FROM hendelse WHERE vedtaksperiode_id = ?"
+        run(queryOf(query, vedtaksperiodeId).asUpdate)
+    }
+
+    internal fun lagre(hendelseId: UUID, vedtaksperiodeId: UUID, utbetalingId: UUID?, korrelasjonsId: UUID?, fattetTidspunkt: LocalDateTime, hendelser: Set<UUID>) {
         @Language("PostgreSQL")
         val query =
             """
@@ -50,29 +59,39 @@ class VedtakFattetDao(private val dataSource: DataSource) {
                 VALUES (:vedtaksperiodeId, :hendelseId, :utbetalingId, :korrelasjonsId, :fattetTidspunkt)
             """
         sessionOf(dataSource).use { session ->
-            session.run(queryOf(query, mapOf(
-                "hendelseId" to hendelseId,
-                "vedtaksperiodeId" to vedtaksperiodeId,
-                "utbetalingId" to utbetalingId,
-                "korrelasjonsId" to korrelasjonsId,
-                "fattetTidspunkt" to fattetTidspunkt,
-            )).asExecute)
+            session.transaction { tx ->
+                tx.run(
+                    queryOf(
+                        query,
+                        mapOf(
+                            "hendelseId" to hendelseId,
+                            "vedtaksperiodeId" to vedtaksperiodeId,
+                            "utbetalingId" to utbetalingId,
+                            "korrelasjonsId" to korrelasjonsId,
+                            "fattetTidspunkt" to fattetTidspunkt,
+                        )
+                    ).asExecute
+                )
+                hendelser.forEach {
+                    tx.lagre(it, vedtaksperiodeId)
+                }
+            }
+
         }
     }
 
-    internal fun lagre(hendelseId: UUID, vedtaksperiodeId: UUID) {
+    private fun TransactionalSession.lagre(hendelseId: UUID, vedtaksperiodeId: UUID) {
         @Language("PostgreSQL")
-        val query = "INSERT INTO hendelse(hendelse_id, vedtaksperiode_id) VALUES (:hendelseId, :vedtaksperiodeId) ON CONFLICT DO NOTHING"
-        sessionOf(dataSource).use {
-            it.run(
-                queryOf(
-                    query,
-                    mapOf(
-                        "hendelseId" to hendelseId,
-                        "vedtaksperiodeId" to vedtaksperiodeId
-                    )
-                ).asUpdate
-            )
-        }
+        val query =
+            "INSERT INTO hendelse(hendelse_id, vedtaksperiode_id) VALUES (:hendelseId, :vedtaksperiodeId) ON CONFLICT DO NOTHING"
+        this.run(
+            queryOf(
+                query,
+                mapOf(
+                    "hendelseId" to hendelseId,
+                    "vedtaksperiodeId" to vedtaksperiodeId
+                )
+            ).asUpdate
+        )
     }
 }

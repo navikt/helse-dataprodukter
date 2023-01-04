@@ -32,8 +32,7 @@ internal class Vedtak(
     }
 
     internal fun lagre(vedtakFattetDao: VedtakFattetDao) {
-        vedtakFattetDao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt)
-        hendelser.forEach { hendelseId -> vedtakFattetDao.lagre(hendelseId, vedtaksperiodeId) }
+        vedtakFattetDao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt, hendelser)
     }
 
     override fun equals(other: Any?): Boolean {

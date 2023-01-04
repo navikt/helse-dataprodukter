@@ -1,8 +1,6 @@
 package no.nav.helse
 
 import no.nav.helse.rapids_rivers.RapidsConnection
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.*
 
 internal interface IVedtakFattetMediator {
@@ -10,9 +8,6 @@ internal interface IVedtakFattetMediator {
 }
 
 internal class VedtakFattetMediator(rapidsConnection: RapidsConnection, private val dao: VedtakFattetDao): IVedtakFattetMediator {
-    private companion object {
-        val logg: Logger = LoggerFactory.getLogger(VedtakFattetMediator::class.java)
-    }
 
     init {
         VedtakFattetRiver(rapidsConnection, this)

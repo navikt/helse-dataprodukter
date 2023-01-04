@@ -31,7 +31,7 @@ internal class VedtakDaoTest {
         val utbetalingId = UUID.randomUUID()
         val korrelasjonsId = UUID.randomUUID()
         val fattetTidspunkt = LocalDateTime.now()
-        dao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt)
+        dao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt, emptySet())
         assertVedtak(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt)
     }
     @Test
@@ -46,7 +46,7 @@ internal class VedtakDaoTest {
     fun `Kan lagre hendelser`() {
         val vedtaksperiodeId = UUID.randomUUID()
         val hendelseId = UUID.randomUUID()
-        dao.lagre(hendelseId, vedtaksperiodeId)
+        dao.lagre(UUID.randomUUID(), vedtaksperiodeId, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), setOf(hendelseId))
         assertHendelse(vedtaksperiodeId, hendelseId)
     }
 
@@ -58,10 +58,7 @@ internal class VedtakDaoTest {
         val korrelasjonsId = UUID.randomUUID()
         val fattetTidspunkt = LocalDateTime.now()
         val hendelser = setOf(UUID.randomUUID(), UUID.randomUUID())
-        dao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt)
-        hendelser.forEach {
-            dao.lagre(hendelseId = it, vedtaksperiodeId = vedtaksperiodeId)
-        }
+        dao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt, hendelser)
 
         val funnetVedtak = dao.finnVedtakFor(vedtaksperiodeId)
         assertEquals(Vedtak(vedtaksperiodeId, hendelseId, utbetalingId, korrelasjonsId, fattetTidspunkt, hendelser), funnetVedtak)
@@ -70,9 +67,14 @@ internal class VedtakDaoTest {
     @Test
     fun `kan slette vedtak`() {
         val vedtaksperiodeId = UUID.randomUUID()
+        val hendelseId = UUID.randomUUID()
         opprettVedtak(vedtaksperiodeId)
+        opprettHendelse(vedtaksperiodeId, hendelseId)
+        assertHendelse(vedtaksperiodeId, hendelseId)
+
         dao.fjernVedtakFor(vedtaksperiodeId)
         assertIkkeVedtak(vedtaksperiodeId)
+        assertIkkeHendelser(vedtaksperiodeId)
     }
 
     private fun assertVedtak(hendelseId: UUID, vedtaksperiodeId: UUID, utbetalingId: UUID?, korrelasjonsId: UUID?, fattetTidspunkt: LocalDateTime) {
@@ -105,11 +107,29 @@ internal class VedtakDaoTest {
         assertEquals(1, antall)
     }
 
+    private fun assertIkkeHendelser(vedtaksperiodeId: UUID) {
+        @Language("PostgreSQL")
+        val query = "SELECT COUNT(1) FROM hendelse WHERE vedtaksperiode_id = ?"
+        val antall = sessionOf(db).use { session ->
+            session.run(queryOf(query, vedtaksperiodeId).map { it.int(1) }.asSingle)
+        }
+
+        assertEquals(0, antall)
+    }
+
     private fun opprettVedtak(vedtaksperiodeId: UUID) {
         @Language("PostgreSQL")
         val query = "INSERT INTO vedtak_fattet(vedtaksperiode_id, hendelse_id, utbetaling_id, korrelasjon_id, fattet_tidspunkt) VALUES (?, ?, ?, ?, ?)"
         sessionOf(db).use { session ->
             session.run(queryOf(query, vedtaksperiodeId, UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now()).asExecute)
+        }
+    }
+
+    private fun opprettHendelse(vedtaksperiodeId: UUID, hendelseId: UUID) {
+        @Language("PostgreSQL")
+        val query = "INSERT INTO hendelse(hendelse_id, vedtaksperiode_id) VALUES (?, ?)"
+        sessionOf(db).use { session ->
+            session.run(queryOf(query, hendelseId, vedtaksperiodeId).asExecute)
         }
     }
 }
