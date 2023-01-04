@@ -1,5 +1,7 @@
 package no.nav.helse
 
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -11,8 +13,19 @@ internal class Vedtak(
     private val korrelasjonsId: UUID?,
     private val fattetTidspunkt: LocalDateTime,
 ) {
+    private companion object {
+        private val logg = LoggerFactory.getLogger(Vedtak::class.java)
+    }
     internal fun håndterNytt(vedtak: Vedtak, vedtakFattetDao: VedtakFattetDao) {
-        if (utbetalingId != null) return // perioden er ikke AUU, har allerede behandlet perioden, teller ikke dobbelt
+        if (utbetalingId != null) {
+            logg.info(
+                "Ignorerer vedtak med {} da det allerede finnes et vedtak for {}",
+                kv("hendelseId", vedtak.hendelseId),
+                kv("vedtaksperiodeId", vedtaksperiodeId)
+            )
+            return
+        } // perioden er ikke AUU, har allerede behandlet perioden, teller ikke dobbelt
+        logg.info("Erstatter vedtak for {} da perioden har gått fra å være AUU til å være vanlig periode", kv("vedtaksperiodeId", vedtaksperiodeId))
         vedtakFattetDao.fjernVedtakFor(vedtaksperiodeId)
         vedtak.lagre(vedtakFattetDao)
     }
