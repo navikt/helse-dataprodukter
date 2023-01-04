@@ -7,6 +7,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.LocalDateTime
+import java.util.*
 
 private val messageCounter: Counter = Counter.build("vedtak_fattet_lest", "Antall vedtak fattet lest").register()
 
@@ -28,6 +29,7 @@ internal class VedtakFattetRiver(
                     "vedtaksperiodeId",
                     "vedtakFattetTidspunkt",
                 )
+                it.requireArray("hendelser")
                 it.interestedIn("utbetalingId", "korrelasjonsId")
             }
         }.register(this)
@@ -38,12 +40,14 @@ internal class VedtakFattetRiver(
         messageCounter.inc()
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asText().toUUID()
         val fattetTidspunkt = LocalDateTime.parse(packet["vedtakFattetTidspunkt"].asText())
+
         val vedtak = Vedtak(
             vedtaksperiodeId = vedtaksperiodeId,
             hendelseId = packet["@id"].asText().toUUID(),
             utbetalingId = packet["utbetalingId"].textValue()?.toUUID(),
             korrelasjonsId = packet["korrelasjonsId"].textValue()?.toUUID(),
-            fattetTidspunkt = fattetTidspunkt
+            fattetTidspunkt = fattetTidspunkt,
+            hendelser = packet.hendelser(vedtaksperiodeId)
         )
         logg.info(
             "Mottok vedtak med {}, {}",
@@ -52,6 +56,13 @@ internal class VedtakFattetRiver(
         )
         mediator.håndter(vedtaksperiodeId, vedtak)
         logg.info("Behandlet vedtak fattet med {} på ${forbruktTid(start)} ms", kv("vedtaksperiodeId", vedtaksperiodeId))
+    }
+
+    private fun JsonMessage.hendelser(vedtaksperiodeId: UUID): Set<UUID> {
+        val hendelser = this["hendelser"].map { it.asText().toUUID() }.toSet()
+
+        if (hendelser.isEmpty()) throw IllegalStateException("Vedtaket for $vedtaksperiodeId inneholder ingen hendelser")
+        return hendelser
     }
 
     private fun forbruktTid(start: Long) = Duration.ofNanos(System.nanoTime() - start).toMillis()

@@ -1,5 +1,6 @@
 package no.nav.helse
 
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import org.intellij.lang.annotations.Language
@@ -12,16 +13,25 @@ class VedtakFattetDao(private val dataSource: DataSource) {
         @Language("PostgreSQL")
         val query = "SELECT * FROM vedtak_fattet WHERE vedtaksperiode_id = ?"
         return sessionOf(dataSource, strict = true).use { session ->
-            session.run(queryOf(query, vedtaksperiodeId).map {
-                Vedtak(
-                    vedtaksperiodeId = it.uuid("vedtaksperiode_id"),
-                    hendelseId = it.uuid("hendelse_id"),
-                    utbetalingId = it.uuidOrNull("utbetaling_id"),
-                    korrelasjonsId = it.uuidOrNull("korrelasjon_id"),
-                    fattetTidspunkt = it.localDateTime("fattet_tidspunkt")
-                )
-            }.asSingle)
+            session.transaction { tx ->
+                tx.run(queryOf(query, vedtaksperiodeId).map {
+                    Vedtak(
+                        vedtaksperiodeId = it.uuid("vedtaksperiode_id"),
+                        hendelseId = it.uuid("hendelse_id"),
+                        utbetalingId = it.uuidOrNull("utbetaling_id"),
+                        korrelasjonsId = it.uuidOrNull("korrelasjon_id"),
+                        fattetTidspunkt = it.localDateTime("fattet_tidspunkt"),
+                        hendelser = tx.finnHendelserFor(vedtaksperiodeId)
+                    )
+                }.asSingle)
+            }
         }
+    }
+
+    private fun TransactionalSession.finnHendelserFor(vedtaksperiodeId: UUID): Set<UUID> {
+        @Language("PostgreSQL")
+        val query = "SELECT hendelse_id FROM hendelse WHERE vedtaksperiode_id = ?"
+        return run(queryOf(query, vedtaksperiodeId).map { it.uuid("hendelse_id") }.asList).toSet()
     }
 
     internal fun fjernVedtakFor(vedtaksperiodeId: UUID) {
@@ -47,6 +57,22 @@ class VedtakFattetDao(private val dataSource: DataSource) {
                 "korrelasjonsId" to korrelasjonsId,
                 "fattetTidspunkt" to fattetTidspunkt,
             )).asExecute)
+        }
+    }
+
+    internal fun lagre(hendelseId: UUID, vedtaksperiodeId: UUID) {
+        @Language("PostgreSQL")
+        val query = "INSERT INTO hendelse(hendelse_id, vedtaksperiode_id) VALUES (:hendelseId, :vedtaksperiodeId) ON CONFLICT DO NOTHING"
+        sessionOf(dataSource).use {
+            it.run(
+                queryOf(
+                    query,
+                    mapOf(
+                        "hendelseId" to hendelseId,
+                        "vedtaksperiodeId" to vedtaksperiodeId
+                    )
+                ).asUpdate
+            )
         }
     }
 }

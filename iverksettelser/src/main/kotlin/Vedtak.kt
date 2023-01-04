@@ -12,6 +12,7 @@ internal class Vedtak(
     private val utbetalingId: UUID?,
     private val korrelasjonsId: UUID?,
     private val fattetTidspunkt: LocalDateTime,
+    private val hendelser: Set<UUID>,
 ) {
     private companion object {
         private val logg = LoggerFactory.getLogger(Vedtak::class.java)
@@ -32,6 +33,7 @@ internal class Vedtak(
 
     internal fun lagre(vedtakFattetDao: VedtakFattetDao) {
         vedtakFattetDao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt)
+        hendelser.forEach { hendelseId -> vedtakFattetDao.lagre(hendelseId, vedtaksperiodeId) }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -44,6 +46,7 @@ internal class Vedtak(
         if (vedtaksperiodeId != other.vedtaksperiodeId) return false
         if (utbetalingId != other.utbetalingId) return false
         if (korrelasjonsId != other.korrelasjonsId) return false
+        if (hendelser != other.hendelser) return false
         if (fattetTidspunkt.truncatedTo(ChronoUnit.MILLIS) != other.fattetTidspunkt.truncatedTo(ChronoUnit.MILLIS)) return false
 
         return true
@@ -55,6 +58,7 @@ internal class Vedtak(
         result = 31 * result + (utbetalingId?.hashCode() ?: 0)
         result = 31 * result + (korrelasjonsId?.hashCode() ?: 0)
         result = 31 * result + fattetTidspunkt.hashCode()
+        result = 31 * result + hendelser.hashCode()
         return result
     }
 }

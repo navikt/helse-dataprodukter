@@ -41,6 +41,15 @@ internal class VedtakDaoTest {
         val vedtak = dao.finnVedtakFor(vedtaksperiodeId)
         assertNotNull(vedtak)
     }
+
+    @Test
+    fun `Kan lagre hendelser`() {
+        val vedtaksperiodeId = UUID.randomUUID()
+        val hendelseId = UUID.randomUUID()
+        dao.lagre(hendelseId, vedtaksperiodeId)
+        assertHendelse(vedtaksperiodeId, hendelseId)
+    }
+
     @Test
     fun `kan lagre og lese vedtak`() {
         val hendelseId = UUID.randomUUID()
@@ -48,9 +57,14 @@ internal class VedtakDaoTest {
         val utbetalingId = UUID.randomUUID()
         val korrelasjonsId = UUID.randomUUID()
         val fattetTidspunkt = LocalDateTime.now()
+        val hendelser = setOf(UUID.randomUUID(), UUID.randomUUID())
         dao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt)
+        hendelser.forEach {
+            dao.lagre(hendelseId = it, vedtaksperiodeId = vedtaksperiodeId)
+        }
+
         val funnetVedtak = dao.finnVedtakFor(vedtaksperiodeId)
-        assertEquals(Vedtak(vedtaksperiodeId, hendelseId, utbetalingId, korrelasjonsId, fattetTidspunkt), funnetVedtak)
+        assertEquals(Vedtak(vedtaksperiodeId, hendelseId, utbetalingId, korrelasjonsId, fattetTidspunkt, hendelser), funnetVedtak)
     }
 
     @Test
@@ -79,6 +93,16 @@ internal class VedtakDaoTest {
         }
 
         assertEquals(0, antall)
+    }
+
+    private fun assertHendelse(vedtaksperiodeId: UUID, hendelseId: UUID) {
+        @Language("PostgreSQL")
+        val query = "SELECT COUNT(1) FROM hendelse WHERE vedtaksperiode_id = ? AND hendelse_id = ?"
+        val antall = sessionOf(db).use { session ->
+            session.run(queryOf(query, vedtaksperiodeId, hendelseId).map { it.int(1) }.asSingle)
+        }
+
+        assertEquals(1, antall)
     }
 
     private fun opprettVedtak(vedtaksperiodeId: UUID) {

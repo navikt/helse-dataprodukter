@@ -42,6 +42,12 @@ class VedtakFattetRiverTest {
     }
 
     @Test
+    fun `håndterer ikke vedtak fattet når hendelser ikke er satt`() {
+        testRapid.sendTestMessage(vedtakFattetUten("hendelser"))
+        assertEquals(0, håndterteVedtak.size)
+    }
+
+    @Test
     fun `ignorerer eventer som ikke er av typen vedtak_fattet`() {
         testRapid.sendTestMessage("""{ "@event_name": "some_event" }""")
         assertEquals(0, håndterteVedtak.size)
