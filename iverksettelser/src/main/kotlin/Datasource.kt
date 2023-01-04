@@ -10,6 +10,7 @@ internal fun datasource(username: String, password: String, url: String) =
         this.password = password
         jdbcUrl = url
         connectionTimeout = 1000L
+        maximumPoolSize = 2
     }
 
 
