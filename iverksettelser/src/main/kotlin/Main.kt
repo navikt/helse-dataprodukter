@@ -6,13 +6,14 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 fun main() {
     val env = System.getenv()
     val datasource = datasource(
-        env["DATABASE_USERNAME"] ?: throw IllegalArgumentException("Missing envvar"),
-        env["DATABASE_PASSWORD"] ?: throw IllegalArgumentException("Missing envvar"),
+        env.value("DATABASE_USERNAME"),
+        env.value("DATABASE_PASSWORD"),
         String.format(
             "jdbc:postgresql://%s:%s/%s",
-            requireNotNull(env["DATABASE_HOST"]) { "database host must be set" },
-            requireNotNull(env["DATABASE_PORT"]) { "database port must be set" },
-            requireNotNull(env["DATABASE_DATABASE"]) { "database name must be set" })
+            env.value("DATABASE_HOST"),
+            env.value("DATABASE_PORT"),
+            env.value("DATABASE_DATABASE")
+        )
     )
 
     RapidApplication.create(env).apply {
@@ -25,3 +26,5 @@ fun main() {
         })
     }.start()
 }
+
+fun Map<String, String>.value(key: String) = requireNotNull(this[key]) { "Environment value $key must be defined" }
