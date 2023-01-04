@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
     application
 }
-group = "no.nav.helse.hehe"
+group = "no.nav.helse"
 
 dependencies {
     implementation("com.github.navikt:rapids-and-rivers:2022112407251669271100.df879df951cf")
