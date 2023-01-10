@@ -1,10 +1,13 @@
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.nav.helse.IVedtakFattetMediator
+import no.nav.helse.*
+import no.nav.helse.IMediator
+import no.nav.helse.Utbetaling
 import no.nav.helse.Vedtak
 import no.nav.helse.VedtakFattetRiver
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.*
 
 class VedtakFattetRiverTest {
@@ -81,9 +84,26 @@ class VedtakFattetRiverTest {
         "fødselsnummer" to "12345678910"
     )
 
-    private val mediator get() = object : IVedtakFattetMediator {
+    private val mediator get() = object : IMediator {
         override fun håndter(vedtaksperiodeId: UUID, vedtak: Vedtak) {
             håndterteVedtak.add(vedtak)
+        }
+
+        override fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling) {
+            TODO("Not yet implemented")
+        }
+
+        override fun håndterAnnullering(korrelasjonsId: UUID) {
+            TODO("Not yet implemented")
+        }
+
+        override fun nyUtbetaling(
+            korrelasjonsId: UUID,
+            utbetalingId: UUID,
+            utbetalingstype: Utbetalingstype,
+            opprettet: LocalDateTime
+        ) {
+            TODO("Not yet implemented")
         }
     }
 }

@@ -17,7 +17,7 @@ fun main() {
     )
 
     RapidApplication.create(env).apply {
-        Mediator(this, VedtakFattetDao(datasource))
+        Mediator(this, VedtakFattetDao(datasource), UtbetalingEndretDao(datasource))
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {

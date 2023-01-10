@@ -12,7 +12,7 @@ private val messageCounter: Counter = Counter.build("vedtak_fattet_lest", "Antal
 
 internal class VedtakFattetRiver(
     rapidsConnection: RapidsConnection,
-    private val mediator: IVedtakFattetMediator
+    private val mediator: IMediator
 ) : River.PacketListener {
 
     private companion object {

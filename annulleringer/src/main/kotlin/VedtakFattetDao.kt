@@ -48,4 +48,8 @@ class VedtakFattetDao(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun markerAnnullertFor(korrelasjonsId: UUID) {
+        TODO("Not yet implemented")
+    }
 }
