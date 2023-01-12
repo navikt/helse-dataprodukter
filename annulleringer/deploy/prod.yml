@@ -1,1 +1,3 @@
 pool: nav-prod
+minReplicas: 24
+maxReplicas: 24
