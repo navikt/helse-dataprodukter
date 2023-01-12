@@ -49,7 +49,17 @@ class VedtakFattetDao(private val dataSource: DataSource) {
         }
     }
 
-    fun markerAnnullertFor(korrelasjonsId: UUID) {
-        TODO("Not yet implemented")
+    internal fun markerAnnullertFor(utbetalingId: UUID) {
+        @Language("PostgreSQL")
+        val query =
+            """
+                UPDATE vedtak_fattet vf 
+                SET annullert = true 
+                WHERE utbetaling_id = ?
+            """
+
+        sessionOf(dataSource).use { session ->
+            session.run(queryOf(query, utbetalingId).asExecute)
+        }
     }
 }

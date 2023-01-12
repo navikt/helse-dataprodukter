@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class VedtakDaoTest {
+internal class VedtakFattetDaoTest {
 
     private val dataSource = getDataSource()
     private val dao = VedtakFattetDao(dataSource)
@@ -50,16 +50,51 @@ internal class VedtakDaoTest {
         assertEquals(Vedtak(vedtaksperiodeId, hendelseId, utbetalingId, fattetTidspunkt), funnetVedtak)
     }
 
+    @Test
+    fun `Markerer ikke vedtak som har annen utbetalingId som annullert`() {
+        val hendelseId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+        val fattetTidspunkt = LocalDateTime.now()
+        val utbetalingId = UUID.randomUUID()
+        dao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, fattetTidspunkt)
+        assertVedtak(hendelseId, vedtaksperiodeId, utbetalingId, fattetTidspunkt, false)
+
+        dao.markerAnnullertFor(UUID.randomUUID())
+
+        assertVedtak(hendelseId, vedtaksperiodeId, utbetalingId, fattetTidspunkt, false)
+    }
+
+    @Test
+    fun `Kan markere vedtak som annullert`() {
+        val hendelseId1 = UUID.randomUUID()
+        val hendelseId2 = UUID.randomUUID()
+        val vedtaksperiodeId1 = UUID.randomUUID()
+        val vedtaksperiodeId2 = UUID.randomUUID()
+        val fattetTidspunkt1 = LocalDateTime.now()
+        val fattetTidspunkt2 = LocalDateTime.now()
+        val utbetalingId = UUID.randomUUID()
+        dao.lagre(hendelseId1, vedtaksperiodeId1, utbetalingId, fattetTidspunkt1)
+        dao.lagre(hendelseId2, vedtaksperiodeId2, utbetalingId, fattetTidspunkt2)
+        assertVedtak(hendelseId1, vedtaksperiodeId1, utbetalingId, fattetTidspunkt1, false)
+        assertVedtak(hendelseId2, vedtaksperiodeId2, utbetalingId, fattetTidspunkt2, false)
+
+        dao.markerAnnullertFor(utbetalingId)
+
+        assertVedtak(hendelseId1, vedtaksperiodeId1, utbetalingId, fattetTidspunkt1, true)
+        assertVedtak(hendelseId2, vedtaksperiodeId2, utbetalingId, fattetTidspunkt2, true)
+    }
+
     private fun assertVedtak(
         hendelseId: UUID,
         vedtaksperiodeId: UUID,
         utbetalingId: UUID?,
-        fattetTidspunkt: LocalDateTime
+        fattetTidspunkt: LocalDateTime,
+        annullert: Boolean = false
     ) {
         @Language("PostgreSQL")
-        val query = "SELECT COUNT(1) FROM vedtak_fattet WHERE vedtaksperiode_id = ? AND hendelse_id = ? AND utbetaling_id = ? AND fattet_tidspunkt = ?"
+        val query = "SELECT COUNT(1) FROM vedtak_fattet WHERE vedtaksperiode_id = ? AND hendelse_id = ? AND utbetaling_id = ? AND fattet_tidspunkt = ? AND annullert = ?"
         val antall = sessionOf(dataSource).use { session ->
-            session.run(queryOf(query, vedtaksperiodeId, hendelseId, utbetalingId, fattetTidspunkt).map { it.int(1) }.asSingle)
+            session.run(queryOf(query, vedtaksperiodeId, hendelseId, utbetalingId, fattetTidspunkt, annullert).map { it.int(1) }.asSingle)
         }
 
         assertEquals(1, antall)
