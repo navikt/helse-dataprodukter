@@ -37,7 +37,7 @@ internal class Mediator(
     }
 
     private companion object {
-        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
+        private val logg = LoggerFactory.getLogger(Mediator::class.java)
     }
 
     override fun håndter(vedtaksperiodeId: UUID, vedtak: Vedtak) {
@@ -53,7 +53,7 @@ internal class Mediator(
     }
 
     override fun håndterAnnullering(korrelasjonsId: UUID, utbetalingIder: List<UUID>) {
-        sikkerlogg.info(
+        logg.info(
             "Markerer utbetaling med {}, {} som annullert",
             kv("korrelasjonsId", korrelasjonsId),
             kv("utbetalingsider", utbetalingIder.joinToString())
