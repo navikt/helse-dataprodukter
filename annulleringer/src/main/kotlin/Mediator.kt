@@ -7,7 +7,7 @@ import java.util.*
 internal interface IMediator {
     fun håndter(vedtaksperiodeId: UUID, vedtak: Vedtak)
     fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling, versjon: Utbetaling.Versjon)
-    fun håndterAnnullering(korrelasjonsId: UUID)
+    fun håndterAnnullering(korrelasjonsId: UUID, utbetalingIder: List<UUID>)
     fun nyUtbetaling(
         korrelasjonsId: UUID,
         arbeidsgiverFagsystemId: String,
@@ -45,9 +45,11 @@ internal class Mediator(
             ?: utbetaling.lagre(this, versjon)
     }
 
-    override fun håndterAnnullering(korrelasjonsId: UUID) {
-        vedtakFattetDao.markerAnnullertFor(korrelasjonsId)
+    override fun håndterAnnullering(korrelasjonsId: UUID, utbetalingIder: List<UUID>) {
         utbetalingEndretDao.markerAnnullertFor(korrelasjonsId)
+        utbetalingIder.forEach { utbetalingId ->
+            vedtakFattetDao.markerAnnullertFor(utbetalingId)
+        }
     }
 
     override fun nyUtbetaling(

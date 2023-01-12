@@ -1,6 +1,7 @@
 package no.nav.helse
 
 import net.logstash.logback.argument.StructuredArguments.kv
+import no.nav.helse.Utbetaling.Versjon.Companion.håndterAnnullering
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -28,7 +29,7 @@ internal class Utbetaling(
             )
 
         lagreVersjon(mediator, versjon)
-        if (versjon.erAnnullering()) mediator.håndterAnnullering(korrelasjonsId)
+        if (versjon.erAnnullering()) versjoner.håndterAnnullering(mediator, korrelasjonsId)
     }
 
     internal fun lagre(mediator: Mediator, versjon: Versjon) {
@@ -63,6 +64,12 @@ internal class Utbetaling(
         private val utbetalingstype: Utbetalingstype,
         private val opprettet: LocalDateTime
     ) {
+        internal companion object {
+            internal fun List<Versjon>.håndterAnnullering(mediator: IMediator, korrelasjonsId: UUID) {
+                mediator.håndterAnnullering(korrelasjonsId, this.map { it.utbetalingId })
+            }
+        }
+
         internal fun erAnnullering() = utbetalingstype == Utbetalingstype.ANNULLERING
         internal fun lagre(mediator: Mediator, korrelasjonsId: UUID) {
             mediator.nyVersjon(korrelasjonsId, utbetalingId, utbetalingstype, opprettet)

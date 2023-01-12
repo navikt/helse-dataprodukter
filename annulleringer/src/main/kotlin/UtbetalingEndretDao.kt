@@ -84,7 +84,11 @@ internal class UtbetalingEndretDao(private val dataSource: DataSource) {
         }
     }
 
-    fun markerAnnullertFor(korrelasjonsId: UUID) {
-        TODO("Not yet implemented")
+    internal fun markerAnnullertFor(korrelasjonsId: UUID) {
+        @Language("PostgreSQL")
+        val query = "UPDATE utbetaling SET annullert = true WHERE korrelasjon_id = ?"
+        sessionOf(dataSource).use {
+            it.run(queryOf(query, korrelasjonsId).asExecute)
+        }
     }
 }

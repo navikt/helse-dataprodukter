@@ -36,7 +36,7 @@ internal class UtbetalingEndretDaoTest {
             utbetaling
         )
 
-        assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, 1)
+        assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, false, 1)
     }
 
     @Test
@@ -50,7 +50,7 @@ internal class UtbetalingEndretDaoTest {
         dao.nyUtbetalingFor(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, opprettet)
         dao.nyVersjonFor(korrelasjonsId, utbetalingId, utbetalingstype, opprettet)
 
-        assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, 1)
+        assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, false, 1)
         assertUtbetalingsversjon(korrelasjonsId, utbetalingId, utbetalingstype, 1)
     }
 
@@ -109,11 +109,22 @@ internal class UtbetalingEndretDaoTest {
         )
     }
 
-    private fun assertUtbetaling(korrelasjonsId: UUID, arbeidsgiverFagsystemId: String, personFagsystemId: String, forventetAntall: Int) {
+    @Test
+    fun `Kan markere utbetaling som annullert`() {
+        val korrelasjonsId = UUID.randomUUID()
+        val arbeidsgiverFagsystemId = "${UUID.randomUUID()}"
+        val personFagsystemId = "${UUID.randomUUID()}"
+        val opprettet = LocalDateTime.now()
+        dao.nyUtbetalingFor(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, opprettet)
+        dao.markerAnnullertFor(korrelasjonsId)
+        assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, true, 1)
+    }
+
+    private fun assertUtbetaling(korrelasjonsId: UUID, arbeidsgiverFagsystemId: String, personFagsystemId: String, annullert: Boolean, forventetAntall: Int) {
         @Language("PostgreSQL")
-        val query = "SELECT COUNT(1) FROM utbetaling WHERE korrelasjon_id = ? AND arbeidsgiver_fagsystemid = ? AND person_fagsystemid = ?"
+        val query = "SELECT COUNT(1) FROM utbetaling WHERE korrelasjon_id = ? AND arbeidsgiver_fagsystemid = ? AND person_fagsystemid = ? AND annullert = ?"
         val antall = sessionOf(dataSource).use { session ->
-            session.run(queryOf(query, korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId).map { it.int(1) }.asSingle)
+            session.run(queryOf(query, korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, annullert).map { it.int(1) }.asSingle)
         }
         assertEquals(forventetAntall, antall) {
             "Fant $antall utbetalinger med korrelasjonsId=$korrelasjonsId, arbeidsgiverFagsystemId=$arbeidsgiverFagsystemId, personFagsystemId=$personFagsystemId. Forventet $forventetAntall utbetalinger"

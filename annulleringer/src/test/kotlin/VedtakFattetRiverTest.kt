@@ -93,7 +93,7 @@ class VedtakFattetRiverTest {
             TODO("Not yet implemented")
         }
 
-        override fun håndterAnnullering(korrelasjonsId: UUID) {
+        override fun håndterAnnullering(korrelasjonsId: UUID, utbetalingIder: List<UUID>) {
             TODO("Not yet implemented")
         }
 
