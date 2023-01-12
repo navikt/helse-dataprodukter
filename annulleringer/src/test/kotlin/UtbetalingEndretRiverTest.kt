@@ -117,6 +117,8 @@ class UtbetalingEndretRiverTest {
         "forrigeStatus" to "OVERFØRT",
         "gjeldendeStatus" to "UTBETALT",
         "korrelasjonsId" to "${UUID.randomUUID()}",
+        "arbeidsgiverOppdrag" to mapOf("fagsystemId" to "ARBEIDSGIVER_FAGSYSTEM_ID"),
+        "personOppdrag" to mapOf("fagsystemId" to "PERSON_FAGSYSTEM_ID"),
         "@id" to "${UUID.randomUUID()}",
         "@opprettet" to "2018-02-01T00:00:00.000",
         "aktørId" to "1234567891011",
@@ -124,7 +126,7 @@ class UtbetalingEndretRiverTest {
     )
 
     private val mediator get() = object : IMediator {
-        override fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling) {
+        override fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling, versjon: Utbetaling.Versjon) {
             håndterteUtbetalinger.add(utbetaling)
         }
 
@@ -137,6 +139,15 @@ class UtbetalingEndretRiverTest {
         }
 
         override fun nyUtbetaling(
+            korrelasjonsId: UUID,
+            arbeidsgiverFagsystemId: String,
+            personFagsystemId: String,
+            opprettet: LocalDateTime
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override fun nyVersjon(
             korrelasjonsId: UUID,
             utbetalingId: UUID,
             utbetalingstype: Utbetalingstype,

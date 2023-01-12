@@ -6,9 +6,21 @@ import java.util.*
 
 internal interface IMediator {
     fun håndter(vedtaksperiodeId: UUID, vedtak: Vedtak)
-    fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling)
+    fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling, versjon: Utbetaling.Versjon)
     fun håndterAnnullering(korrelasjonsId: UUID)
-    fun nyUtbetaling(korrelasjonsId: UUID, utbetalingId: UUID, utbetalingstype: Utbetalingstype, opprettet: LocalDateTime)
+    fun nyUtbetaling(
+        korrelasjonsId: UUID,
+        arbeidsgiverFagsystemId: String,
+        personFagsystemId: String,
+        opprettet: LocalDateTime
+    )
+
+    fun nyVersjon(
+        korrelasjonsId: UUID,
+        utbetalingId: UUID,
+        utbetalingstype: Utbetalingstype,
+        opprettet: LocalDateTime
+    )
 }
 
 internal class Mediator(
@@ -27,10 +39,10 @@ internal class Mediator(
             ?: vedtak.lagre(vedtakFattetDao)
     }
 
-    override fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling) {
+    override fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling, versjon: Utbetaling.Versjon) {
         utbetalingEndretDao.finnUtbetalingFor(korrelasjonsId)
-            ?.håndter(this, utbetaling)
-            ?: utbetaling.lagre(this)
+            ?.håndter(this, versjon)
+            ?: utbetaling.lagre(this, versjon)
     }
 
     override fun håndterAnnullering(korrelasjonsId: UUID) {
@@ -40,10 +52,19 @@ internal class Mediator(
 
     override fun nyUtbetaling(
         korrelasjonsId: UUID,
-        utbetalingId: UUID,
-        utbetalingstype: Utbetalingstype,
+        arbeidsgiverFagsystemId: String,
+        personFagsystemId: String,
         opprettet: LocalDateTime
     ) {
-        utbetalingEndretDao.opprettFor(korrelasjonsId, utbetalingId, utbetalingstype, opprettet)
+        utbetalingEndretDao.nyUtbetalingFor(
+            korrelasjonsId,
+            personFagsystemId,
+            arbeidsgiverFagsystemId,
+            opprettet
+        )
+    }
+
+    override fun nyVersjon(korrelasjonsId: UUID, utbetalingId: UUID, utbetalingstype: Utbetalingstype, opprettet: LocalDateTime) {
+        utbetalingEndretDao.nyVersjonFor(korrelasjonsId, utbetalingId, utbetalingstype, opprettet)
     }
 }

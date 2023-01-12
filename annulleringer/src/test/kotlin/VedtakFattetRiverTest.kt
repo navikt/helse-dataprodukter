@@ -89,7 +89,7 @@ class VedtakFattetRiverTest {
             håndterteVedtak.add(vedtak)
         }
 
-        override fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling) {
+        override fun håndter(korrelasjonsId: UUID, utbetaling: Utbetaling, versjon: Utbetaling.Versjon) {
             TODO("Not yet implemented")
         }
 
@@ -98,6 +98,15 @@ class VedtakFattetRiverTest {
         }
 
         override fun nyUtbetaling(
+            korrelasjonsId: UUID,
+            arbeidsgiverFagsystemId: String,
+            personFagsystemId: String,
+            opprettet: LocalDateTime
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override fun nyVersjon(
             korrelasjonsId: UUID,
             utbetalingId: UUID,
             utbetalingstype: Utbetalingstype,

@@ -13,7 +13,7 @@ internal class UtbetalingEndretRiver(rapidsConnection: RapidsConnection, private
         River(rapidsConnection).apply {
             validate {
                 it.demandValue("@event_name", "utbetaling_endret")
-                it.requireKey("korrelasjonsId", "utbetalingId")
+                it.requireKey("korrelasjonsId", "utbetalingId", "arbeidsgiverOppdrag.fagsystemId", "personOppdrag.fagsystemId")
                 it.requireAny("gjeldendeStatus", gyldigeStatuser.values())
                 it.requireAny("type", gyldigeTyper.values())
                 it.requireKey("@opprettet")
@@ -25,8 +25,16 @@ internal class UtbetalingEndretRiver(rapidsConnection: RapidsConnection, private
         val utbetalingId = UUID.fromString(packet["utbetalingId"].asText())
         val korrelasjonsId = UUID.fromString(packet["korrelasjonsId"].asText())
         val utbetalingstype = enumValueOf<Utbetalingstype>(packet["type"].asText())
+        val arbeidsgiverFagsystemId = packet["arbeidsgiverOppdrag.fagsystemId"].asText()
+        val personFagsystemId = packet["personOppdrag.fagsystemId"].asText()
         val opprettet = packet["@opprettet"].asLocalDateTime()
-        val utbetaling = Utbetaling(korrelasjonsId, utbetalingId, utbetalingstype, opprettet)
-        mediator.håndter(korrelasjonsId, utbetaling)
+        val utbetaling = Utbetaling(
+            korrelasjonsId = korrelasjonsId,
+            arbeidsgiverFagsystemId = arbeidsgiverFagsystemId,
+            personFagsystemId = personFagsystemId,
+            opprettet = opprettet
+        )
+        val versjon = Utbetaling.Versjon(utbetalingId, utbetalingstype, opprettet)
+        mediator.håndter(korrelasjonsId, utbetaling, versjon)
     }
 }
