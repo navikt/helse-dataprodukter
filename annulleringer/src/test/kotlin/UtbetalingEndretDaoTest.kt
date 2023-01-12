@@ -120,6 +120,17 @@ internal class UtbetalingEndretDaoTest {
         assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, true, 1)
     }
 
+    @Test
+    fun `Markerer ikke utbetaling med annen korrelasjonsId som annullert`() {
+        val korrelasjonsId = UUID.randomUUID()
+        val arbeidsgiverFagsystemId = "${UUID.randomUUID()}"
+        val personFagsystemId = "${UUID.randomUUID()}"
+        val opprettet = LocalDateTime.now()
+        dao.nyUtbetalingFor(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, opprettet)
+        dao.markerAnnullertFor(UUID.randomUUID())
+        assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, false, 1)
+    }
+
     private fun assertUtbetaling(korrelasjonsId: UUID, arbeidsgiverFagsystemId: String, personFagsystemId: String, annullert: Boolean, forventetAntall: Int) {
         @Language("PostgreSQL")
         val query = "SELECT COUNT(1) FROM utbetaling WHERE korrelasjon_id = ? AND arbeidsgiver_fagsystemid = ? AND person_fagsystemid = ? AND annullert = ?"
