@@ -17,7 +17,7 @@ internal class Utbetaling(
     private val versjoner: MutableList<Versjon> = versjoner.toMutableList()
 
     private companion object {
-        private val sikkerlogg = LoggerFactory.getLogger(Utbetaling::class.java)
+        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
     }
 
     internal fun håndter(mediator: Mediator, versjon: Versjon) {

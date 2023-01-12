@@ -1,6 +1,8 @@
 package no.nav.helse
 
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.rapids_rivers.RapidsConnection
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
@@ -31,6 +33,11 @@ internal class Mediator(
 
     init {
         VedtakFattetRiver(rapidsConnection, this)
+        UtbetalingEndretRiver(rapidsConnection, this)
+    }
+
+    private companion object {
+        private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
     }
 
     override fun håndter(vedtaksperiodeId: UUID, vedtak: Vedtak) {
@@ -46,6 +53,11 @@ internal class Mediator(
     }
 
     override fun håndterAnnullering(korrelasjonsId: UUID, utbetalingIder: List<UUID>) {
+        sikkerlogg.info(
+            "Markerer utbetaling med {}, {} som annullert",
+            kv("korrelasjonsId", korrelasjonsId),
+            kv("utbetalingsider", utbetalingIder.joinToString())
+        )
         utbetalingEndretDao.markerAnnullertFor(korrelasjonsId)
         utbetalingIder.forEach { utbetalingId ->
             vedtakFattetDao.markerAnnullertFor(utbetalingId)
