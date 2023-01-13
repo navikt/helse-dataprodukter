@@ -10,7 +10,7 @@ class VedtakTest {
     fun `referential equals`() {
         val vedtak = Vedtak(
             vedtaksperiodeId = UUID.randomUUID(),
-            hendelseId = UUID.randomUUID(),
+            meldingId = UUID.randomUUID(),
             utbetalingId = UUID.randomUUID(),
             korrelasjonsId = UUID.randomUUID(),
             fattetTidspunkt = LocalDateTime.now(),

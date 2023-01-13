@@ -8,7 +8,7 @@ import java.util.UUID
 
 internal class Vedtak(
     private val vedtaksperiodeId: UUID,
-    private val hendelseId: UUID,
+    private val meldingId: UUID,
     private val utbetalingId: UUID?,
     private val korrelasjonsId: UUID?,
     private val fattetTidspunkt: LocalDateTime,
@@ -21,7 +21,7 @@ internal class Vedtak(
         if (utbetalingId != null) {
             logg.info(
                 "Ignorerer vedtak med {} da det allerede finnes et vedtak for {}",
-                kv("hendelseId", vedtak.hendelseId),
+                kv("hendelseId", vedtak.meldingId),
                 kv("vedtaksperiodeId", vedtaksperiodeId)
             )
             return
@@ -32,7 +32,7 @@ internal class Vedtak(
     }
 
     internal fun lagre(vedtakFattetDao: VedtakFattetDao) {
-        vedtakFattetDao.lagre(hendelseId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt, hendelser)
+        vedtakFattetDao.lagre(meldingId, vedtaksperiodeId, utbetalingId, korrelasjonsId, fattetTidspunkt, hendelser)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -41,7 +41,7 @@ internal class Vedtak(
 
         other as Vedtak
 
-        if (hendelseId != other.hendelseId) return false
+        if (meldingId != other.meldingId) return false
         if (vedtaksperiodeId != other.vedtaksperiodeId) return false
         if (utbetalingId != other.utbetalingId) return false
         if (korrelasjonsId != other.korrelasjonsId) return false
@@ -52,7 +52,7 @@ internal class Vedtak(
     }
 
     override fun hashCode(): Int {
-        var result = hendelseId.hashCode()
+        var result = meldingId.hashCode()
         result = 31 * result + vedtaksperiodeId.hashCode()
         result = 31 * result + (utbetalingId?.hashCode() ?: 0)
         result = 31 * result + (korrelasjonsId?.hashCode() ?: 0)

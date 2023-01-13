@@ -17,7 +17,7 @@ class VedtakFattetDao(private val dataSource: DataSource) {
                 tx.run(queryOf(query, vedtaksperiodeId).map {
                     Vedtak(
                         vedtaksperiodeId = it.uuid("vedtaksperiode_id"),
-                        hendelseId = it.uuid("hendelse_id"),
+                        meldingId = it.uuid("melding_id"),
                         utbetalingId = it.uuidOrNull("utbetaling_id"),
                         korrelasjonsId = it.uuidOrNull("korrelasjon_id"),
                         fattetTidspunkt = it.localDateTime("fattet_tidspunkt"),
@@ -51,12 +51,12 @@ class VedtakFattetDao(private val dataSource: DataSource) {
         run(queryOf(query, vedtaksperiodeId).asUpdate)
     }
 
-    internal fun lagre(hendelseId: UUID, vedtaksperiodeId: UUID, utbetalingId: UUID?, korrelasjonsId: UUID?, fattetTidspunkt: LocalDateTime, hendelser: Set<UUID>) {
+    internal fun lagre(meldingId: UUID, vedtaksperiodeId: UUID, utbetalingId: UUID?, korrelasjonsId: UUID?, fattetTidspunkt: LocalDateTime, hendelser: Set<UUID>) {
         @Language("PostgreSQL")
         val query =
             """
-                INSERT INTO vedtak_fattet(vedtaksperiode_id, hendelse_id, utbetaling_id, korrelasjon_id, fattet_tidspunkt) 
-                VALUES (:vedtaksperiodeId, :hendelseId, :utbetalingId, :korrelasjonsId, :fattetTidspunkt)
+                INSERT INTO vedtak_fattet(vedtaksperiode_id, melding_id, utbetaling_id, korrelasjon_id, fattet_tidspunkt) 
+                VALUES (:vedtaksperiodeId, :meldingId, :utbetalingId, :korrelasjonsId, :fattetTidspunkt)
             """
         sessionOf(dataSource).use { session ->
             session.transaction { tx ->
@@ -64,7 +64,7 @@ class VedtakFattetDao(private val dataSource: DataSource) {
                     queryOf(
                         query,
                         mapOf(
-                            "hendelseId" to hendelseId,
+                            "meldingId" to meldingId,
                             "vedtaksperiodeId" to vedtaksperiodeId,
                             "utbetalingId" to utbetalingId,
                             "korrelasjonsId" to korrelasjonsId,

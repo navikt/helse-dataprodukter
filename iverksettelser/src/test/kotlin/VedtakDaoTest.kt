@@ -77,11 +77,11 @@ internal class VedtakDaoTest {
         assertIkkeHendelser(vedtaksperiodeId)
     }
 
-    private fun assertVedtak(hendelseId: UUID, vedtaksperiodeId: UUID, utbetalingId: UUID?, korrelasjonsId: UUID?, fattetTidspunkt: LocalDateTime) {
+    private fun assertVedtak(meldingId: UUID, vedtaksperiodeId: UUID, utbetalingId: UUID?, korrelasjonsId: UUID?, fattetTidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
-        val query = "SELECT COUNT(1) FROM vedtak_fattet WHERE vedtaksperiode_id = ? AND hendelse_id = ? AND utbetaling_id = ? AND korrelasjon_id = ? AND fattet_tidspunkt = ?"
+        val query = "SELECT COUNT(1) FROM vedtak_fattet WHERE vedtaksperiode_id = ? AND melding_id = ? AND utbetaling_id = ? AND korrelasjon_id = ? AND fattet_tidspunkt = ?"
         val antall = sessionOf(db).use { session ->
-            session.run(queryOf(query, vedtaksperiodeId, hendelseId, utbetalingId, korrelasjonsId, fattetTidspunkt).map { it.int(1) }.asSingle)
+            session.run(queryOf(query, vedtaksperiodeId, meldingId, utbetalingId, korrelasjonsId, fattetTidspunkt).map { it.int(1) }.asSingle)
         }
 
         assertEquals(1, antall)
@@ -119,7 +119,7 @@ internal class VedtakDaoTest {
 
     private fun opprettVedtak(vedtaksperiodeId: UUID) {
         @Language("PostgreSQL")
-        val query = "INSERT INTO vedtak_fattet(vedtaksperiode_id, hendelse_id, utbetaling_id, korrelasjon_id, fattet_tidspunkt) VALUES (?, ?, ?, ?, ?)"
+        val query = "INSERT INTO vedtak_fattet(vedtaksperiode_id, melding_id, utbetaling_id, korrelasjon_id, fattet_tidspunkt) VALUES (?, ?, ?, ?, ?)"
         sessionOf(db).use { session ->
             session.run(queryOf(query, vedtaksperiodeId, UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now()).asExecute)
         }

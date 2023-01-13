@@ -43,7 +43,7 @@ internal class VedtakFattetRiver(
 
         val vedtak = Vedtak(
             vedtaksperiodeId = vedtaksperiodeId,
-            hendelseId = packet["@id"].asText().toUUID(),
+            meldingId = packet["@id"].asText().toUUID(),
             utbetalingId = packet["utbetalingId"].textValue()?.toUUID(),
             korrelasjonsId = packet["korrelasjonsId"].textValue()?.toUUID(),
             fattetTidspunkt = fattetTidspunkt,

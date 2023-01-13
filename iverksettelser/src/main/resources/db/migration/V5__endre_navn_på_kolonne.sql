@@ -1,0 +1,1 @@
+ALTER TABLE vedtak_fattet RENAME hendelse_id TO melding_id;
