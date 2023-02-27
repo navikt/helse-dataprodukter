@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":felles"))
 
     testImplementation("org.testcontainers:postgresql:1.17.6")
+    testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
 }
@@ -29,7 +30,6 @@ tasks.withType<Test> {
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
-
 
 tasks {
     jar {

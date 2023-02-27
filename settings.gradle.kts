@@ -1,3 +1,2 @@
-
 rootProject.name = "helse-dataprodukter"
-include("forstegangsbehandling", "iverksettelser", "annulleringer")
+include("forstegangsbehandling", "iverksettelser", "annulleringer", "arbeidsgiveropplysninger", "felles")

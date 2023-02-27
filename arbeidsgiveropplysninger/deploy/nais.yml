@@ -1,0 +1,43 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: dataprodukt-arbeidsgiveropplysninger
+  namespace: tbd
+  labels:
+    team: tbd
+spec:
+  image: {{image}}
+  port: 8080
+  liveness:
+    path: isalive
+  readiness:
+    path: isready
+  resources:
+    limits:
+      memory: 500Mi
+    requests:
+      cpu: 200m
+      memory: 500Mi
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 75
+  kafka:
+    pool: {{pool}}
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_14
+        diskAutoresize: true
+        tier: db-custom-1-3840
+        databases:
+          - name: arbeidsgiveropplysninger
+            envVarPrefix: DATABASE
+  secureLogs:
+    enabled: true
+  env:
+    - name: KAFKA_RAPID_TOPIC
+      value: tbd.rapid.v1
+    - name: KAFKA_CONSUMER_GROUP_ID
+      value: cg-dataprodukt-arbeidsgiveropplysninger-v1
+    - name: KAFKA_RESET_POLICY
+      value: "earliest"

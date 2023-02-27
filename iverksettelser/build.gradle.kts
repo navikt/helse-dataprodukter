@@ -12,6 +12,7 @@ dependencies {
     implementation("com.github.seratch:kotliquery:1.9.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.5.1")
+    implementation(project(":felles"))
 
     testImplementation("org.testcontainers:postgresql:1.17.6")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
