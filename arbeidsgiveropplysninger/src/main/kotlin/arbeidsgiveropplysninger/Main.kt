@@ -1,4 +1,4 @@
-package arbeidsgiveropplysninger
+package no.nav.helse.arbeidsgiveropplysninger
 
 import no.nav.helse.datasource
 import no.nav.helse.migrate

@@ -1,4 +1,4 @@
-package arbeidsgiveropplysninger
+package no.nav.helse.arbeidsgiveropplysninger
 
 import java.time.LocalDateTime
 import java.util.UUID

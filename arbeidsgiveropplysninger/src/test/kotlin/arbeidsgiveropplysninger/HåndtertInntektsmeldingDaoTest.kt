@@ -1,9 +1,9 @@
-package arbeidsgiveropplysninger
+package no.nav.helse.arbeidsgiveropplysninger
 
-import arbeidsgiveropplysninger.TestDatasource.getDataSource
-import arbeidsgiveropplysninger.TestDatasource.resetDatabase
 import kotliquery.queryOf
 import kotliquery.sessionOf
+import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.getDataSource
+import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.resetDatabase
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach

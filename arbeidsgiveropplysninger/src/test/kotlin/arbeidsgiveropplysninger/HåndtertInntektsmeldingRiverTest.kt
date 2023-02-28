@@ -1,4 +1,4 @@
-package arbeidsgiveropplysninger
+package no.nav.helse.arbeidsgiveropplysninger
 
 import io.mockk.clearMocks
 import io.mockk.every

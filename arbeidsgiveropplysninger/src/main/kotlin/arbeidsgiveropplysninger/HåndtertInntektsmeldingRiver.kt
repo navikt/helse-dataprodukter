@@ -1,4 +1,4 @@
-package arbeidsgiveropplysninger
+package no.nav.helse.arbeidsgiveropplysninger
 
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.rapids_rivers.JsonMessage

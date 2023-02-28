@@ -1,4 +1,4 @@
-package arbeidsgiveropplysninger
+package no.nav.helse.arbeidsgiveropplysninger
 
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.queryOf
