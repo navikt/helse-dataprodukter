@@ -1,8 +1,6 @@
 package no.nav.helse
 
 import net.logstash.logback.argument.StructuredArguments.kv
-import no.nav.helse.Utbetalingsstatus.Companion.gyldigeStatuser
-import no.nav.helse.Utbetalingsstatus.Companion.values
 import no.nav.helse.Utbetalingstype.Companion.gyldigeTyper
 import no.nav.helse.Utbetalingstype.Companion.values
 import no.nav.helse.rapids_rivers.*
@@ -16,6 +14,7 @@ internal class UtbetalingEndretRiver(
 
     private companion object {
         private val logg = LoggerFactory.getLogger(UtbetalingEndretRiver::class.java)
+        private val terminaltilstander = listOf("ANNULLERT", "UTBETALT", "GODKJENT_UTEN_UTBETALING")
     }
 
     init {
@@ -23,7 +22,7 @@ internal class UtbetalingEndretRiver(
             validate {
                 it.demandValue("@event_name", "utbetaling_endret")
                 it.requireKey("korrelasjonsId", "utbetalingId", "arbeidsgiverOppdrag.fagsystemId", "personOppdrag.fagsystemId")
-                it.requireAny("gjeldendeStatus", gyldigeStatuser.values())
+                it.requireAny("gjeldendeStatus", terminaltilstander)
                 it.requireAny("type", gyldigeTyper.values())
                 it.requireKey("@opprettet")
             }
