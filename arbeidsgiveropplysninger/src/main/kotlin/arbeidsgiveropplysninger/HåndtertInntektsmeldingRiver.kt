@@ -27,7 +27,7 @@ internal class HåndtertInntektsmeldingRiver(
                 it.requireKey(
                     "vedtaksperiodeId",
                     "inntektsmeldingId",
-                    "opprettet"
+                    "@opprettet"
                 )
             }
         }.register(this)
@@ -36,7 +36,7 @@ internal class HåndtertInntektsmeldingRiver(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asText().toUUID()
         val inntektsmeldingId = packet["inntektsmeldingId"].asText().toUUID()
-        val opprettet = packet["opprettet"].asLocalDateTime()
+        val opprettet = packet["@opprettet"].asLocalDateTime()
 
         val håndtertInntektsmelding = HåndtertInntektsmeldingDto(
             id = UUID.randomUUID(),

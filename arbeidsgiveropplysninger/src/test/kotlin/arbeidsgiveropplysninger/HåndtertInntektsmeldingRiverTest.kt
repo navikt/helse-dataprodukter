@@ -71,7 +71,7 @@ class HåndtertInntektsmeldingRiverTest {
             "@event_name": "${eventName}",
             "vedtaksperiodeId": "${vedtaksperiodeId}",
             "inntektsmeldingId": "${inntektsmeldingId}",
-            "opprettet": "${opprettet}"
+            "@opprettet": "${opprettet}"
        } 
     """
     )
