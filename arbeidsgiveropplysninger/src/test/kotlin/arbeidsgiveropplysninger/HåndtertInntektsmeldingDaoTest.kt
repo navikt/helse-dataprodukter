@@ -5,24 +5,19 @@ import kotliquery.sessionOf
 import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.getDataSource
 import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.resetDatabase
 import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HåndtertInntektsmeldingDaoTest {
 
     private val dataSource = getDataSource()
     val dao = HåndtertInntektsmeldingDao(dataSource)
-
-    @BeforeEach
-    fun reset() {
-        resetDatabase()
-    }
 
     @Test
     fun `lagrer kobling mellom vedtaksperiode og inntektsmelding i databasen`() {
@@ -41,6 +36,11 @@ class HåndtertInntektsmeldingDaoTest {
 
         assertInnslag(id, vedtaksperiodeId, inntektsmeldingId, opprettet, 1)
         assertAntallInnslag(1)
+    }
+
+    @AfterEach
+    fun reset() {
+        resetDatabase()
     }
 
     private fun assertInnslag(

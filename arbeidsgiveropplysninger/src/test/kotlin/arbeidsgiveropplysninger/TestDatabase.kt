@@ -15,7 +15,7 @@ private object PostgresContainer {
         PostgreSQLContainer<Nothing>("postgres:14").apply {
             withReuse(true)
             withLabel("app-navn", "arbeidsgiveropplysninger")
-            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all")
+            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all", "-c", "wal_level=logical")
             start()
             followOutput(Slf4jLogConsumer(LoggerFactory.getLogger("postgres")))
         }
@@ -39,6 +39,8 @@ internal object TestDatasource {
 
     fun resetDatabase() {
         sessionOf(dataSource).use { session ->
+            session.run(queryOf("DROP PUBLICATION IF EXISTS dataprodukter_arbeidsgiveropplysninger_publication").asExecute)
+            session.run(queryOf("SELECT PG_DROP_REPLICATION_SLOT('dataprodukter_arbeidsgiveropplysninger_replication')").asExecute)
             session.run(queryOf("SELECT truncate_tables()").asExecute)
         }
     }
