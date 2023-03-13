@@ -11,13 +11,13 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 
-class HåndtertInntektsmeldingRiverTest {
+class InntektsmeldingHåndtertRiverTest {
 
     private val testRapid = TestRapid()
-    private val dao = mockk<HåndtertInntektsmeldingDao>(relaxed = true)
+    private val dao = mockk<InntektsmeldingHåndtertDao>(relaxed = true)
 
     init {
-        HåndtertInntektsmeldingRiver(testRapid, dao)
+        InntektsmeldingHåndtertRiver(testRapid, dao)
     }
 
     @BeforeEach
@@ -61,7 +61,7 @@ class HåndtertInntektsmeldingRiverTest {
     }
 
     fun TestRapid.sendJson(
-        eventName: String = "håndtert_inntektsmelding",
+        eventName: String = "inntektsmelding_håndtert",
         vedtaksperiodeId: UUID = UUID.randomUUID(),
         inntektsmeldingId: UUID = UUID.randomUUID(),
         opprettet: LocalDateTime = LocalDateTime.now()

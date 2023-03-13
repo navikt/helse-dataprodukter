@@ -21,10 +21,10 @@ fun main() {
             requireNotNull(env["DATABASE_DATABASE"]) { "database name must be set" })
     )
 
-    val håndtertInntektsmeldingDao = HåndtertInntektsmeldingDao(datasource)
+    val inntektsmeldingHåndtertDao = InntektsmeldingHåndtertDao(datasource)
 
     RapidApplication.create(env).apply {
-        HåndtertInntektsmeldingRiver(this, håndtertInntektsmeldingDao)
+        InntektsmeldingHåndtertRiver(this, inntektsmeldingHåndtertDao)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {

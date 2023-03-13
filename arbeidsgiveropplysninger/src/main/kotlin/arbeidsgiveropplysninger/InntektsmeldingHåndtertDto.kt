@@ -3,7 +3,7 @@ package no.nav.helse.arbeidsgiveropplysninger
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class HåndtertInntektsmeldingDto(
+data class InntektsmeldingHåndtertDto(
     internal val id: UUID,
     internal val vedtaksperiodeId: UUID,
     internal val inntektsmeldingId: UUID,

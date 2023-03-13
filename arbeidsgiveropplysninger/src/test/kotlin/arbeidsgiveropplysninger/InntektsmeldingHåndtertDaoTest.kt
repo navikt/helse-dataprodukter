@@ -14,10 +14,10 @@ import java.time.LocalDateTime
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class HåndtertInntektsmeldingDaoTest {
+class InntektsmeldingHåndtertDaoTest {
 
     private val dataSource = getDataSource()
-    val dao = HåndtertInntektsmeldingDao(dataSource)
+    val dao = InntektsmeldingHåndtertDao(dataSource)
 
     @Test
     fun `lagrer kobling mellom vedtaksperiode og inntektsmelding i databasen`() {
@@ -26,7 +26,7 @@ class HåndtertInntektsmeldingDaoTest {
         val inntektsmeldingId = UUID.randomUUID()
         val opprettet = LocalDate.EPOCH.atStartOfDay()
         dao.lagre(
-            HåndtertInntektsmeldingDto(
+            InntektsmeldingHåndtertDto(
                 id = id,
                 vedtaksperiodeId = vedtaksperiodeId,
                 inntektsmeldingId = inntektsmeldingId,
@@ -51,7 +51,7 @@ class HåndtertInntektsmeldingDaoTest {
         forventetAntall: Int
     ) {
         @Language("PostgreSQL")
-        val query = "SELECT COUNT(1) FROM haandtert_inntektsmelding WHERE id = ? AND vedtaksperiode_id = ? AND inntektsmelding_id = ? AND opprettet = ?"
+        val query = "SELECT COUNT(1) FROM inntektsmelding_haandtert WHERE id = ? AND vedtaksperiode_id = ? AND inntektsmelding_id = ? AND opprettet = ?"
         val antall = sessionOf(dataSource).use { session ->
             session.run(queryOf(query, id, vedtaksperiodeId, inntektsmeldingId, opprettet).map { it.int(1) }.asSingle)
         }
@@ -63,7 +63,7 @@ class HåndtertInntektsmeldingDaoTest {
         forventetAntall: Int
     ) {
         @Language("PostgreSQL")
-        val query = "SELECT COUNT(1) FROM haandtert_inntektsmelding"
+        val query = "SELECT COUNT(1) FROM inntektsmelding_haandtert"
         val antall = sessionOf(dataSource).use { session ->
             session.run(queryOf(query).map { it.int(1) }.asSingle)
         }
