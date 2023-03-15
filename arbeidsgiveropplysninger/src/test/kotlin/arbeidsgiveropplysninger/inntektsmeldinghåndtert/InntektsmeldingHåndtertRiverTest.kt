@@ -1,5 +1,7 @@
-package no.nav.helse.arbeidsgiveropplysninger
+package arbeidsgiveropplysninger.inntektsmeldinghåndtert
 
+import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertDao
+import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -10,11 +12,10 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.UUID
 
-
 class InntektsmeldingHåndtertRiverTest {
 
     private val testRapid = TestRapid()
-    private val dao = mockk<InntektsmeldingHåndtertDao>(relaxed = true)
+    private val dao = mockk<InntektsmeldingHåndtertDao>()
 
     init {
         InntektsmeldingHåndtertRiver(testRapid, dao)

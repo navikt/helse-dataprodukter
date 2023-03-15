@@ -1,0 +1,126 @@
+package arbeidsgiveropplysninger.inntektsmeldingaktivitet
+
+import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivitetDao
+import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivitetDto
+import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktiviteterRiver
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
+import java.util.UUID
+
+class InntektsmeldingAktiviteterRiverTest {
+
+    private val testRapid = TestRapid()
+    private val dao = mockk<InntektsmeldingAktivitetDao>()
+
+    init {
+        InntektsmeldingAktiviteterRiver(testRapid, dao)
+    }
+
+    @BeforeEach
+    fun clear() {
+        clearMocks(dao)
+    }
+
+    @Test
+    fun `lagrer melding med relevant varselkode`() {
+        every { dao.lagre(any()) } returns true
+
+        val id = UUID.randomUUID()
+        val inntektsmeldingId = UUID.randomUUID()
+        val tidsstempel = LocalDateTime.now()
+        val varselkode = "RV_IM_2"
+        testRapid.sendJson(
+            id = id,
+            inntektsmeldingId = inntektsmeldingId,
+            varselkode = varselkode,
+            tidsstempel = tidsstempel
+        )
+
+        verify(exactly = 1) {
+            dao.lagre(
+                InntektsmeldingAktivitetDto(
+                id = id,
+                inntektsmeldingId = inntektsmeldingId,
+                varselkode = varselkode,
+                nivå = "VARSEL",
+                melding = "Dette er en melding",
+                tidsstempel = tidsstempel
+            )
+            )
+        }
+    }
+
+    @Test
+    fun `lagrer ikke melding med varselkode som ikke er relevant`() {
+        every { dao.lagre(any()) } returns true
+
+        testRapid.sendJson(varselkode = "tullekode")
+
+        verify(exactly = 0) {
+            dao.lagre(any())
+        }
+    }
+
+    @Test
+    fun `plukker ikke opp melding med annet event-name`() {
+        every { dao.lagre(any()) } returns true
+
+        testRapid.sendJson(eventName = "feil_event", varselkode = "RV_IM_2")
+
+        verify(exactly = 0) {
+            dao.lagre(any())
+        }
+    }
+
+    @Test
+    fun `plukker ikke opp melding som ikke gjelder inntektsmelding`() {
+        every { dao.lagre(any()) } returns true
+
+        testRapid.sendJson(forårsaketAvEventName = "ikke_inntektsmelding", varselkode = "RV_IM_2")
+
+        verify(exactly = 0) {
+            dao.lagre(any())
+        }
+    }
+
+    fun TestRapid.sendJson(
+        eventName: String = "aktivitetslogg_ny_aktivitet",
+        forårsaketAvEventName: String = "inntektsmelding",
+        varselkode: String,
+        inntektsmeldingId: UUID = UUID.randomUUID(),
+        id: UUID = UUID.randomUUID(),
+        tidsstempel: LocalDateTime = LocalDateTime.now()
+    ) = sendTestMessage(
+       """
+       {
+            "@event_name": "$eventName",
+            "@id": "${UUID.randomUUID()}",
+            "@forårsaket_av": {
+                "event_name": "$forårsaketAvEventName", 
+                 "id": "$inntektsmeldingId"
+            },
+            "aktiviteter": [
+                {
+                    "id": "$id",
+                    "nivå": "VARSEL",
+                    "melding": "Dette er en melding",  
+                    "varselkode": "$varselkode", 
+                    "tidsstempel": "$tidsstempel"
+                },
+                {
+                    "id": "$id",
+                    "nivå": "INFO",
+                    "melding": "Dette er en melding",  
+                    "tidsstempel": "$tidsstempel"
+                }
+            ]
+       } 
+       """
+    )
+}

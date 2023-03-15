@@ -40,7 +40,11 @@ internal object TestDatasource {
     fun resetDatabase() {
         sessionOf(dataSource).use { session ->
             session.run(queryOf("DROP PUBLICATION IF EXISTS dataprodukter_arbeidsgiveropplysninger_publication").asExecute)
-            session.run(queryOf("SELECT PG_DROP_REPLICATION_SLOT('dataprodukter_arbeidsgiveropplysninger_replication')").asExecute)
+            try {
+                session.run(queryOf("SELECT PG_DROP_REPLICATION_SLOT('dataprodukter_arbeidsgiveropplysninger_replication')").asExecute)
+            } catch(_: Exception) {
+                // Dropper ikke replication om den ikke finnes, vet ikke om en god måte å gjøre dette i postgresql
+            }
             session.run(queryOf("SELECT truncate_tables()").asExecute)
         }
     }

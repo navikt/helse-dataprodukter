@@ -1,5 +1,7 @@
 package no.nav.helse.arbeidsgiveropplysninger
 
+import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertDao
+import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
 import no.nav.helse.datasource
 import no.nav.helse.migrate
 import no.nav.helse.rapids_rivers.RapidApplication

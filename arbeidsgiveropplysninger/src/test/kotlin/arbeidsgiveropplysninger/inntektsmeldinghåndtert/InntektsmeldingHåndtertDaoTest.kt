@@ -1,4 +1,4 @@
-package no.nav.helse.arbeidsgiveropplysninger
+package arbeidsgiveropplysninger.inntektsmeldinghåndtert
 
 import kotliquery.queryOf
 import kotliquery.sessionOf
