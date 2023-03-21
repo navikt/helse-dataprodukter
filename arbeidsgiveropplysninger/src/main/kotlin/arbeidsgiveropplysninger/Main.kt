@@ -1,15 +1,13 @@
 package no.nav.helse.arbeidsgiveropplysninger
 
+import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivitetDao
+import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktiviteterRiver
 import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertDao
 import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
 import no.nav.helse.datasource
 import no.nav.helse.migrate
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-val logger: Logger = LoggerFactory.getLogger("arbeidsgiveropplysninger")
 
 fun main() {
     val env = System.getenv()
@@ -24,9 +22,11 @@ fun main() {
     )
 
     val inntektsmeldingHåndtertDao = InntektsmeldingHåndtertDao(datasource)
+    val inntektsmeldingAktivitetDao = InntektsmeldingAktivitetDao(datasource)
 
     RapidApplication.create(env).apply {
         InntektsmeldingHåndtertRiver(this, inntektsmeldingHåndtertDao)
+        InntektsmeldingAktiviteterRiver(this, inntektsmeldingAktivitetDao)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
