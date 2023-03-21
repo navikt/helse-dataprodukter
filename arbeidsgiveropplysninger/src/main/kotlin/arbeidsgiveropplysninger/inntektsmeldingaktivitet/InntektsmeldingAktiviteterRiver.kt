@@ -1,6 +1,5 @@
 package arbeidsgiveropplysninger.inntektsmeldingaktivitet
 
-import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
@@ -92,7 +91,7 @@ private fun List<JsonNode>.asAktiviteter(inntektsmeldingId: UUID): List<Inntekts
     InntektsmeldingAktivitetDto(
         id = UUID.fromString(it["id"].asText()),
         inntektsmeldingId = inntektsmeldingId,
-        varselkode = it["varselkode"]?.asText(),
+        varselkode = it["varselkode"].asText(),
         nivå = it["nivå"].asText(),
         melding = it["melding"].asText(),
         tidsstempel = it["tidsstempel"].asLocalDateTime()
