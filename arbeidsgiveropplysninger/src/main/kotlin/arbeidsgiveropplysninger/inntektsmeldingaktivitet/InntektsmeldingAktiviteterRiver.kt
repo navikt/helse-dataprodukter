@@ -28,6 +28,11 @@ private val relevanteNivåer = listOf(
     "LOGISK_FEIL"
 )
 
+private val relevantForårsaketAv = listOf(
+    "inntektsmelding",
+    "inntektsmelding_replay"
+)
+
 internal class InntektsmeldingAktiviteterRiver(
     rapidsConnection: RapidsConnection,
     private val inntektsmeldingAktivitetDao: InntektsmeldingAktivitetDao
@@ -74,7 +79,7 @@ internal class InntektsmeldingAktiviteterRiver(
 
     private fun forårsaketAvInntektsmelding(forårsaketAv: JsonNode) {
         val eventName = forårsaketAv["event_name"].asText()
-        if(eventName != "inntektsmelding") {
+        if(eventName !in relevantForårsaketAv) {
             logg.info("Fant en aktivitet med relevant varsel som ikke er forårsaket av en inntektsmelding, men en $eventName")
             throw IllegalArgumentException("Kun interessert i aktiviteter på inntektsmelding")
         }

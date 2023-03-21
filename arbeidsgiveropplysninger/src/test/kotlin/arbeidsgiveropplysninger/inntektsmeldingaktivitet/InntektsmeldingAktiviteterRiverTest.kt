@@ -71,7 +71,7 @@ class InntektsmeldingAktiviteterRiverTest {
     fun `plukker ikke opp melding med annet event-name`() {
         every { dao.lagre(any()) } returns true
 
-        testRapid.sendJson(eventName = "feil_event", varselkode = "RV_IM_2")
+        testRapid.sendJson(eventName = "feil_event")
 
         verify(exactly = 0) {
             dao.lagre(any())
@@ -82,9 +82,19 @@ class InntektsmeldingAktiviteterRiverTest {
     fun `plukker ikke opp melding som ikke gjelder inntektsmelding`() {
         every { dao.lagre(any()) } returns true
 
-        testRapid.sendJson(forårsaketAvEventName = "ikke_inntektsmelding", varselkode = "RV_IM_2")
+        testRapid.sendJson(forårsaketAvEventName = "ikke_inntektsmelding")
 
         verify(exactly = 0) {
+            dao.lagre(any())
+        }
+    }
+
+    @Test
+    fun `lagrer aktivitet forårsaket av inntektsmelding-replay`() {
+        every { dao.lagre(any()) } returns true
+        testRapid.sendJson(forårsaketAvEventName = "inntektsmelding_replay")
+
+        verify(exactly = 1) {
             dao.lagre(any())
         }
     }
@@ -92,7 +102,7 @@ class InntektsmeldingAktiviteterRiverTest {
     fun TestRapid.sendJson(
         eventName: String = "aktivitetslogg_ny_aktivitet",
         forårsaketAvEventName: String = "inntektsmelding",
-        varselkode: String,
+        varselkode: String = "RV_IM_2",
         inntektsmeldingId: UUID = UUID.randomUUID(),
         id: UUID = UUID.randomUUID(),
         tidsstempel: LocalDateTime = LocalDateTime.now()
