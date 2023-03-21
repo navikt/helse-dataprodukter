@@ -33,7 +33,7 @@ internal class InntektsmeldingAktiviteterRiver(
     private val inntektsmeldingAktivitetDao: InntektsmeldingAktivitetDao
 ) : River.PacketListener {
 
-    private val logg: Logger = LoggerFactory.getLogger(InntektsmeldingHåndtertRiver::class.java)
+    private val logg: Logger = LoggerFactory.getLogger(InntektsmeldingAktiviteterRiver::class.java)
 
     init {
         River(rapidsConnection).apply {
