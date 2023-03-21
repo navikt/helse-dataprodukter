@@ -4,6 +4,7 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.getDataSource
 import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.resetDatabase
+import no.nav.helse.arbeidsgiveropplysninger.mockInntektsmeldingAktivitet
 import no.nav.helse.arbeidsgiveropplysninger.mockInntektsmelingAktiviteter
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.AfterEach
@@ -29,6 +30,19 @@ class InntektsmeldingAktivitetDaoTest {
 
         assertInnslag(inntektsmeldingId,2)
         assertAntallInnslag(2)
+    }
+
+    @Test
+    fun `lagrer ikke innslag dersom det eksisterer et innslag med lik inntektsmeldingId og varselkode`() {
+        val inntektsmeldingId = UUID.randomUUID()
+        val aktivitet1 = mockInntektsmeldingAktivitet(inntektsmeldingId, "varselkode")
+        val aktivitet2 = mockInntektsmeldingAktivitet(inntektsmeldingId, "varselkode")
+
+        dao.lagre(aktivitet1)
+        assertAntallInnslag(1)
+
+        dao.lagre(aktivitet2)
+        assertAntallInnslag(1)
     }
 
     @AfterEach
