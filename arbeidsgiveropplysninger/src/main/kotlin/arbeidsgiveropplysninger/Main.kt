@@ -4,6 +4,8 @@ import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivite
 import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktiviteterRiver
 import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertDao
 import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
+import arbeidsgiveropplysninger.inntektsmeldingregistrert.InntektsmeldingRegistrertDao
+import arbeidsgiveropplysninger.inntektsmeldingregistrert.InntektsmeldingRegistrertRiver
 import no.nav.helse.datasource
 import no.nav.helse.migrate
 import no.nav.helse.rapids_rivers.RapidApplication
@@ -23,10 +25,12 @@ fun main() {
 
     val inntektsmeldingHåndtertDao = InntektsmeldingHåndtertDao(datasource)
     val inntektsmeldingAktivitetDao = InntektsmeldingAktivitetDao(datasource)
+    val inntektsmeldingRegistrertDao = InntektsmeldingRegistrertDao(datasource)
 
     RapidApplication.create(env).apply {
         InntektsmeldingHåndtertRiver(this, inntektsmeldingHåndtertDao)
         InntektsmeldingAktiviteterRiver(this, inntektsmeldingAktivitetDao)
+        InntektsmeldingRegistrertRiver(this, inntektsmeldingRegistrertDao)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
