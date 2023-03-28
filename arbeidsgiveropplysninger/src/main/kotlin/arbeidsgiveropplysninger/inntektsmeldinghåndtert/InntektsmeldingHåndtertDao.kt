@@ -12,13 +12,13 @@ class InntektsmeldingHåndtertDao(
         sessionOf(dataSource).use { session ->
             @Language("PostgreSQL")
             val statement =
-                "INSERT INTO inntektsmelding_haandtert(id, vedtaksperiode_id, inntektsmelding_id, opprettet) VALUES(?, ?, ?, ?)"
+                "INSERT INTO inntektsmelding_haandtert(id, vedtaksperiode_id, hendelse_id, opprettet) VALUES(?, ?, ?, ?)"
             session.run(
                 queryOf(
                     statement,
                     inntektsmeldingHåndtertDto.id,
                     inntektsmeldingHåndtertDto.vedtaksperiodeId,
-                    inntektsmeldingHåndtertDto.inntektsmeldingId,
+                    inntektsmeldingHåndtertDto.hendelseId,
                     inntektsmeldingHåndtertDto.opprettet
                 ).asExecute
             )

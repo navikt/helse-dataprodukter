@@ -13,12 +13,12 @@ class InntektsmeldingAktivitetDao(
         sessionOf(dataSource).use { session ->
             @Language("PostgreSQL")
             val statement =
-                "INSERT INTO inntektsmelding_aktivitet(id, inntektsmelding_id, varselkode, nivaa, melding, tidsstempel) VALUES(?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING"
+                "INSERT INTO inntektsmelding_aktivitet(id, hendelse_id, varselkode, nivaa, melding, tidsstempel) VALUES(?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING"
             return session.run(
                 queryOf(
                     statement,
                     aktivitet.id,
-                    aktivitet.inntektsmeldingId,
+                    aktivitet.hendelseId,
                     aktivitet.varselkode,
                     aktivitet.nivå,
                     aktivitet.melding,

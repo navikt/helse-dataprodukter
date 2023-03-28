@@ -1,8 +1,5 @@
 package arbeidsgiveropplysninger.inntektsmeldingaktivitet
 
-import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivitetDao
-import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivitetDto
-import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktiviteterRiver
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -32,12 +29,12 @@ class InntektsmeldingAktiviteterRiverTest {
         every { dao.lagre(any()) } returns true
 
         val id = UUID.randomUUID()
-        val inntektsmeldingId = UUID.randomUUID()
+        val hendelseId = UUID.randomUUID()
         val tidsstempel = LocalDateTime.now()
         val varselkode = "RV_IM_2"
         testRapid.sendJson(
             id = id,
-            inntektsmeldingId = inntektsmeldingId,
+            hendelseId = hendelseId,
             varselkode = varselkode,
             tidsstempel = tidsstempel
         )
@@ -46,7 +43,7 @@ class InntektsmeldingAktiviteterRiverTest {
             dao.lagre(
                 InntektsmeldingAktivitetDto(
                 id = id,
-                inntektsmeldingId = inntektsmeldingId,
+                hendelseId = hendelseId,
                 varselkode = varselkode,
                 nivå = "VARSEL",
                 melding = "Dette er en melding",
@@ -103,7 +100,7 @@ class InntektsmeldingAktiviteterRiverTest {
         eventName: String = "aktivitetslogg_ny_aktivitet",
         forårsaketAvEventName: String = "inntektsmelding",
         varselkode: String = "RV_IM_2",
-        inntektsmeldingId: UUID = UUID.randomUUID(),
+        hendelseId: UUID = UUID.randomUUID(),
         id: UUID = UUID.randomUUID(),
         tidsstempel: LocalDateTime = LocalDateTime.now()
     ) = sendTestMessage(
@@ -113,7 +110,7 @@ class InntektsmeldingAktiviteterRiverTest {
             "@id": "${UUID.randomUUID()}",
             "@forårsaket_av": {
                 "event_name": "$forårsaketAvEventName", 
-                 "id": "$inntektsmeldingId"
+                 "id": "$hendelseId"
             },
             "aktiviteter": [
                 {

@@ -23,18 +23,18 @@ class InntektsmeldingHåndtertDaoTest {
     fun `lagrer kobling mellom vedtaksperiode og inntektsmelding i databasen`() {
         val id = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
-        val inntektsmeldingId = UUID.randomUUID()
+        val hendelseId = UUID.randomUUID()
         val opprettet = LocalDate.EPOCH.atStartOfDay()
         dao.lagre(
             InntektsmeldingHåndtertDto(
                 id = id,
                 vedtaksperiodeId = vedtaksperiodeId,
-                inntektsmeldingId = inntektsmeldingId,
+                hendelseId = hendelseId,
                 opprettet = opprettet
             )
         )
 
-        assertInnslag(id, vedtaksperiodeId, inntektsmeldingId, opprettet, 1)
+        assertInnslag(id, vedtaksperiodeId, hendelseId, opprettet, 1)
         assertAntallInnslag(1)
     }
 
@@ -46,14 +46,14 @@ class InntektsmeldingHåndtertDaoTest {
     private fun assertInnslag(
         id: UUID,
         vedtaksperiodeId: UUID,
-        inntektsmeldingId: UUID,
+        hendelseId: UUID,
         opprettet: LocalDateTime,
         forventetAntall: Int
     ) {
         @Language("PostgreSQL")
-        val query = "SELECT COUNT(1) FROM inntektsmelding_haandtert WHERE id = ? AND vedtaksperiode_id = ? AND inntektsmelding_id = ? AND opprettet = ?"
+        val query = "SELECT COUNT(1) FROM inntektsmelding_haandtert WHERE id = ? AND vedtaksperiode_id = ? AND hendelse_id = ? AND opprettet = ?"
         val antall = sessionOf(dataSource).use { session ->
-            session.run(queryOf(query, id, vedtaksperiodeId, inntektsmeldingId, opprettet).map { it.int(1) }.asSingle)
+            session.run(queryOf(query, id, vedtaksperiodeId, hendelseId, opprettet).map { it.int(1) }.asSingle)
         }
 
         Assertions.assertEquals(forventetAntall, antall)

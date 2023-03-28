@@ -58,10 +58,10 @@ internal class InntektsmeldingAktiviteterRiver(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         logg.info("Mottok melding som inneholder relevant varselkode")
-        val inntektsmeldingId = UUID.fromString(packet["@forårsaket_av"]["id"].asText())
+        val hendelseId = UUID.fromString(packet["@forårsaket_av"]["id"].asText())
         val aktiviteter = packet["aktiviteter"]
             .beholdRelevanteAktiviteter()
-            .asAktiviteter(inntektsmeldingId)
+            .asAktiviteter(hendelseId)
 
         aktiviteter.forEach {
             inntektsmeldingAktivitetDao.lagre(it)
@@ -87,10 +87,10 @@ internal class InntektsmeldingAktiviteterRiver(
 
 private fun JsonNode.beholdRelevanteAktiviteter() = filter { it["nivå"].asText() in relevanteNivåer && it["varselkode"].asText() in relevanteVarselkoder }
 
-private fun List<JsonNode>.asAktiviteter(inntektsmeldingId: UUID): List<InntektsmeldingAktivitetDto> = map {
+private fun List<JsonNode>.asAktiviteter(hendelseId: UUID): List<InntektsmeldingAktivitetDto> = map {
     InntektsmeldingAktivitetDto(
         id = UUID.fromString(it["id"].asText()),
-        inntektsmeldingId = inntektsmeldingId,
+        hendelseId = hendelseId,
         varselkode = it["varselkode"].asText(),
         nivå = it["nivå"].asText(),
         melding = it["melding"].asText(),

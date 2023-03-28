@@ -1,7 +1,5 @@
 package arbeidsgiveropplysninger.inntektsmeldinghåndtert
 
-import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertDao
-import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -30,19 +28,19 @@ class InntektsmeldingHåndtertRiverTest {
     fun `lagrer korrekte meldinger i databasen`() {
         every { dao.lagre(any()) } returns true
 
-        val inntektsmeldingId = UUID.randomUUID()
+        val hendelseId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
         val opprettet = LocalDateTime.now()
 
         testRapid.sendJson(
-            inntektsmeldingId = inntektsmeldingId,
+            hendelseId = hendelseId,
             vedtaksperiodeId = vedtaksperiodeId,
             opprettet = opprettet
         )
 
         verify {
             dao.lagre(match {
-                it.inntektsmeldingId == inntektsmeldingId &&
+                it.hendelseId == hendelseId &&
                 it.vedtaksperiodeId == vedtaksperiodeId &&
                 it.opprettet == opprettet
             })
@@ -64,14 +62,14 @@ class InntektsmeldingHåndtertRiverTest {
     fun TestRapid.sendJson(
         eventName: String = "inntektsmelding_håndtert",
         vedtaksperiodeId: UUID = UUID.randomUUID(),
-        inntektsmeldingId: UUID = UUID.randomUUID(),
+        hendelseId: UUID = UUID.randomUUID(),
         opprettet: LocalDateTime = LocalDateTime.now()
     ) = sendTestMessage(
         """
        {
             "@event_name": "${eventName}",
             "vedtaksperiodeId": "${vedtaksperiodeId}",
-            "inntektsmeldingId": "${inntektsmeldingId}",
+            "inntektsmeldingId": "${hendelseId}",
             "@opprettet": "${opprettet}"
        } 
     """

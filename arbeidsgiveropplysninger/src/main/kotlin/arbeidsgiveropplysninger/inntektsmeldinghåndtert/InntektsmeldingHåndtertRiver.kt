@@ -35,26 +35,26 @@ internal class InntektsmeldingHåndtertRiver(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asText().toUUID()
-        val inntektsmeldingId = packet["inntektsmeldingId"].asText().toUUID()
+        val hendelseId = packet["inntektsmeldingId"].asText().toUUID()
         val opprettet = packet["@opprettet"].asLocalDateTime()
 
         val inntektsmeldingHåndtert = InntektsmeldingHåndtertDto(
             id = UUID.randomUUID(),
             vedtaksperiodeId = vedtaksperiodeId,
-            inntektsmeldingId = inntektsmeldingId,
+            hendelseId = hendelseId,
             opprettet = opprettet
         )
         logg.info(
             "Mottok melding om at en vedtaksperiode har håndtert en inntektsmelding: {}, {}, {}",
             StructuredArguments.kv("vedtaksperiodeId", vedtaksperiodeId),
-            StructuredArguments.kv("inntektsmeldingId", inntektsmeldingId),
+            StructuredArguments.kv("hendelseId", hendelseId),
             StructuredArguments.kv("opprettet", opprettet)
         )
         inntektsmeldingHåndtertDao.lagre(inntektsmeldingHåndtert)
 
         logg.info("Lagret kobling mellom vedtaksperiode og inntektsmelding: {}, {}",
             StructuredArguments.kv("vedtaksperiodeId", vedtaksperiodeId),
-            StructuredArguments.kv("inntektsmeldingId", inntektsmeldingId),
+            StructuredArguments.kv("hendelseId", hendelseId),
         )
     }
 }
