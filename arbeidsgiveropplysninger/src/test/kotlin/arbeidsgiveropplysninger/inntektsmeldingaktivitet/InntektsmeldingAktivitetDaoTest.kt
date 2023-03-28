@@ -9,15 +9,17 @@ import no.nav.helse.arbeidsgiveropplysninger.mockInntektsmelingAktiviteter
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertDoesNotThrow
 import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class InntektsmeldingAktivitetDaoTest {
 
     private val dataSource = getDataSource()
-    val dao = InntektsmeldingAktivitetDao(dataSource)
+    private val dao = InntektsmeldingAktivitetDao(dataSource)
 
     @Test
     fun `lagrer aktivtet`() {
@@ -60,7 +62,7 @@ class InntektsmeldingAktivitetDaoTest {
             session.run(queryOf(query, id).map { it.int(1) }.asSingle)
         }
 
-        Assertions.assertEquals(forventetAntall, antall)
+        assertEquals(forventetAntall, antall)
     }
 
     private fun assertAntallInnslag(forventetAntall: Int) {
@@ -70,6 +72,6 @@ class InntektsmeldingAktivitetDaoTest {
             session.run(queryOf(query).map { it.int(1) }.asSingle)
         }
 
-        Assertions.assertEquals(forventetAntall, antall)
+        assertEquals(forventetAntall, antall)
     }
 }
