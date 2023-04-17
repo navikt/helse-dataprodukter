@@ -18,7 +18,8 @@ private val relevanteVarselkoder = listOf(
     "RV_IM_6",  // Inntektsmelding inneholder ikke beregnet inntekt
     "RV_IM_7",  // Brukeren har opphold i naturalytelser TODO: Skal vi ta med denne?
     "RV_IM_8",  // Arbeidsgiver har redusert utbetaling av arbeidsgiverperioden TODO: Skal vi ta med denne?
-    "RV_IM_22"  // Det er mottatt flere inntektsmeldinger på kort tid for samme arbeidsgiver
+    "RV_IM_22", // Det er mottatt flere inntektsmeldinger på kort tid for samme arbeidsgiver
+    "RV_IV_2"   //Har mer enn 25 % avvik. Dette støttes foreløpig ikke i Speil. Du må derfor annullere periodene.
 )
 
 private val relevanteNivåer = listOf(
