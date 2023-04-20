@@ -2,6 +2,7 @@ package no.nav.helse.arbeidsgiveropplysninger
 
 import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivitetDao
 import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktiviteterRiver
+import arbeidsgiveropplysninger.inntektsmeldingaktivitet.SykepengegrunnlagAvvikAktivitetRiver
 import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertDao
 import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
 import arbeidsgiveropplysninger.inntektsmeldingregistrert.InntektsmeldingRegistrertDao
@@ -31,6 +32,7 @@ fun main() {
         InntektsmeldingHåndtertRiver(this, inntektsmeldingHåndtertDao)
         InntektsmeldingAktiviteterRiver(this, inntektsmeldingAktivitetDao)
         InntektsmeldingRegistrertRiver(this, inntektsmeldingRegistrertDao)
+        SykepengegrunnlagAvvikAktivitetRiver(this, inntektsmeldingAktivitetDao, inntektsmeldingHåndtertDao)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {

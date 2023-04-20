@@ -96,7 +96,7 @@ class InntektsmeldingAktiviteterRiverTest {
         }
     }
 
-    fun TestRapid.sendJson(
+    private fun TestRapid.sendJson(
         eventName: String = "aktivitetslogg_ny_aktivitet",
         forårsaketAvEventName: String = "inntektsmelding",
         varselkode: String = "RV_IM_2",

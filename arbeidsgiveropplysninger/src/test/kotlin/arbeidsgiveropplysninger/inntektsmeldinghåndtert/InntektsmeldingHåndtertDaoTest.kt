@@ -6,7 +6,8 @@ import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.getDataSource
 import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.resetDatabase
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDate
@@ -38,6 +39,37 @@ class InntektsmeldingHåndtertDaoTest {
         assertAntallInnslag(1)
     }
 
+    @Test
+    fun `Finner nyeste inntektsmeldingId knyttet til en vedtaksperiode`() {
+        val vedtaksperiodeId = UUID.randomUUID()
+        val hendelseId1 = UUID.randomUUID()
+        val hendelseId2 = UUID.randomUUID()
+        dao.lagre(
+            InntektsmeldingHåndtertDto(
+                id = UUID.randomUUID(),
+                vedtaksperiodeId = vedtaksperiodeId,
+                hendelseId = hendelseId1,
+                opprettet = LocalDateTime.now()
+            )
+        )
+        dao.lagre(
+            InntektsmeldingHåndtertDto(
+                id = UUID.randomUUID(),
+                vedtaksperiodeId = vedtaksperiodeId,
+                hendelseId = hendelseId2,
+                opprettet = LocalDateTime.now()
+            )
+        )
+
+        assertEquals(hendelseId2, dao.finnHendelseId(vedtaksperiodeId))
+    }
+
+    @Test
+    fun `Returnerer null dersom vi ikke finner en kobling mellom vedtaksperiodeId og inntektsmeldingId`() {
+        val vedtaksperiodeId = UUID.randomUUID()
+        assertNull(dao.finnHendelseId(vedtaksperiodeId))
+    }
+
     @AfterEach
     fun reset() {
         resetDatabase()
@@ -56,7 +88,7 @@ class InntektsmeldingHåndtertDaoTest {
             session.run(queryOf(query, id, vedtaksperiodeId, hendelseId, opprettet).map { it.int(1) }.asSingle)
         }
 
-        Assertions.assertEquals(forventetAntall, antall)
+        assertEquals(forventetAntall, antall)
     }
 
     private fun assertAntallInnslag(
@@ -68,6 +100,6 @@ class InntektsmeldingHåndtertDaoTest {
             session.run(queryOf(query).map { it.int(1) }.asSingle)
         }
 
-        Assertions.assertEquals(forventetAntall, antall)
+        assertEquals(forventetAntall, antall)
     }
 }
