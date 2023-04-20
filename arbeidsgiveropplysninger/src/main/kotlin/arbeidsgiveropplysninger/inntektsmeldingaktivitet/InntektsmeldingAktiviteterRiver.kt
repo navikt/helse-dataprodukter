@@ -19,13 +19,12 @@ private val relevanteVarselkoder = listOf(
     "RV_IM_7",  // Brukeren har opphold i naturalytelser TODO: Skal vi ta med denne?
     "RV_IM_8",  // Arbeidsgiver har redusert utbetaling av arbeidsgiverperioden TODO: Skal vi ta med denne?
     "RV_IM_22", // Det er mottatt flere inntektsmeldinger på kort tid for samme arbeidsgiver
-    "RV_IV_2"   //Har mer enn 25 % avvik. Dette støttes foreløpig ikke i Speil. Du må derfor annullere periodene.
+    "RV_IV_2"   // Har mer enn 25 % avvik. Dette støttes foreløpig ikke i Speil. Du må derfor annullere periodene.
 )
 
 private val relevanteNivåer = listOf(
     "VARSEL",
-    "FUNKSJONELL_FEIL",
-    "LOGISK_FEIL"
+    "FUNKSJONELL_FEIL"
 )
 
 private val relevantForårsaketAv = listOf(
@@ -80,7 +79,7 @@ internal class InntektsmeldingAktiviteterRiver(
     private fun forårsaketAvInntektsmelding(forårsaketAv: JsonNode) {
         val eventName = forårsaketAv["event_name"].asText()
         if(eventName !in relevantForårsaketAv) {
-            logg.info("Fant en aktivitet med relevant varsel som ikke er forårsaket av en inntektsmelding, men en $eventName")
+            logg.info("Fant en aktivitet med relevant varsel som ikke er forårsaket av en inntektsmelding, men $eventName")
             throw IllegalArgumentException("Kun interessert i aktiviteter på inntektsmelding")
         }
     }
