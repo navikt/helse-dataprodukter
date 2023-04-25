@@ -38,7 +38,7 @@ class InntektsmeldingRegistrertRiver(rapidsConnection: RapidsConnection, private
         )
 
         inntektsmeldingRegistrertDao.lagre(inntektsmeldingRegistrertDto)
-        logg.info("Lagret kobling mellom hendelseId og dokumentId til inntektsmelding: hendelseId={}, dokumentId={}, opprettet={}",
+        logg.info("Lagret kobling mellom hendelseId og dokumentId til inntektsmelding: {}, {}, {}",
             StructuredArguments.keyValue("hendelseId", hendelseId),
             StructuredArguments.keyValue("dokumentId", dokumentId),
             StructuredArguments.keyValue("opprettet", opprettet)

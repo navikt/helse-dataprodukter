@@ -1,5 +1,7 @@
 package no.nav.helse.arbeidsgiveropplysninger
 
+import arbeidsgiveropplysninger.arbeidsgiveropplysningerkorrigert.ArbeidsgiveropplysningerKorrigertDao
+import arbeidsgiveropplysninger.arbeidsgiveropplysningerkorrigert.ArbeidsgiveropplysningerKorrigertRiver
 import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktivitetDao
 import arbeidsgiveropplysninger.inntektsmeldingaktivitet.InntektsmeldingAktiviteterRiver
 import arbeidsgiveropplysninger.inntektsmeldingaktivitet.SykepengegrunnlagAvvikAktivitetRiver
@@ -27,12 +29,14 @@ fun main() {
     val inntektsmeldingHåndtertDao = InntektsmeldingHåndtertDao(datasource)
     val inntektsmeldingAktivitetDao = InntektsmeldingAktivitetDao(datasource)
     val inntektsmeldingRegistrertDao = InntektsmeldingRegistrertDao(datasource)
+    val arbeidsgiveropplysningerKorrigertDao = ArbeidsgiveropplysningerKorrigertDao(datasource)
 
     RapidApplication.create(env).apply {
         InntektsmeldingHåndtertRiver(this, inntektsmeldingHåndtertDao)
         InntektsmeldingAktiviteterRiver(this, inntektsmeldingAktivitetDao)
         InntektsmeldingRegistrertRiver(this, inntektsmeldingRegistrertDao)
         SykepengegrunnlagAvvikAktivitetRiver(this, inntektsmeldingAktivitetDao, inntektsmeldingHåndtertDao)
+        ArbeidsgiveropplysningerKorrigertRiver(this, arbeidsgiveropplysningerKorrigertDao)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
