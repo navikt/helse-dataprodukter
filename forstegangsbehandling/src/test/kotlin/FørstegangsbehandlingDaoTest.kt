@@ -52,7 +52,7 @@ object PostgresContainer {
         PostgreSQLContainer<Nothing>("postgres:14").apply {
             withReuse(true)
             withLabel("app-navn", "forstegangssoknader")
-            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all")
+            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all", "-c", "wal_level=logical")
             start()
             followOutput(Slf4jLogConsumer(org.slf4j.LoggerFactory.getLogger("postgres")))
         }
