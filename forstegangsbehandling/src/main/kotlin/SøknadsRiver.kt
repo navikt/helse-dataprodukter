@@ -4,6 +4,7 @@ import io.prometheus.client.Counter
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.rapids_rivers.*
 import java.time.Duration
+import java.util.*
 
 val messageCounter: Counter = Counter.build("soknader_lest", "Antall førstegangssøknader lest").register()
 
@@ -39,16 +40,18 @@ internal class SøknadsRiver(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val start = System.nanoTime()
         messageCounter.inc()
+        val søknadId = packet["id"].asText().toUUID()
+        if (søknadId in ugyldigeSøknader) return
         val søknad = Søknad(
-            packet["@id"].asText().toUUID(),
-            packet["id"].asText().toUUID(),
-            packet["sykmeldingId"].asText().toUUID(),
-            packet["fnr"].asText(),
-            packet["arbeidsgiver.orgnummer"].asText(),
-            packet["fom"].asLocalDate(),
-            packet["tom"].asLocalDate(),
-            packet["arbeidGjenopptatt"].asOptionalLocalDate(),
-            packet["@opprettet"].asLocalDateTime(),
+            id = packet["@id"].asText().toUUID(),
+            søknadId = søknadId,
+            sykmeldingId = packet["sykmeldingId"].asText().toUUID(),
+            fnr = packet["fnr"].asText(),
+            orgnummer = packet["arbeidsgiver.orgnummer"].asText(),
+            fom = packet["fom"].asLocalDate(),
+            tom = packet["tom"].asLocalDate(),
+            arbeidGjenopptatt = packet["arbeidGjenopptatt"].asOptionalLocalDate(),
+            opprettet = packet["@opprettet"].asLocalDateTime(),
         )
         logger.info(
             "Mottok søknad med {}, {}",
@@ -58,6 +61,10 @@ internal class SøknadsRiver(
         mediator.håndter(søknad)
         logger.info("Behandlet søknad med {} på ${forbruktTid(start)} ms", kv("id", søknad.søknadId))
     }
+
+    private val ugyldigeSøknader = listOf(
+        UUID.fromString("b1ae4996-45ec-4427-9ab8-b7b3bbbf2e44")
+    )
 
     private fun forbruktTid(start: Long) = Duration.ofNanos(System.nanoTime() - start).toMillis()
 }
