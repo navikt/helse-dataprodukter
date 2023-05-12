@@ -14,11 +14,11 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
         internal fun lagreSøknad(personRef: Long, søknad: Søknad, førstegangsbehandling: Boolean): Int = sessionOf(dataSource).use { session ->
             @Language("PostgreSQL")
             val statement = """ 
-            INSERT INTO søknad (person_ref, hendelse_id, soknad_id, sykmelding_id, opprettet, fom, tom, arbeid_gjenopptatt, forstegangsbehandling) 
+            INSERT INTO soknad (person_ref, hendelse_id, soknad_id, sykmelding_id, opprettet, fom, tom, arbeid_gjenopptatt, forstegangsbehandling) 
             VALUES (:person_ref, :hendelse_id, :soknad_id, :sykmelding_id, :opprettet, :fom, :tom, :arbeid_gjenopptatt, :forstegangsbehandling) 
             ON CONFLICT (hendelse_id) 
             DO 
-            UPDATE SET forstegangsbehandling = søknad.forstegangsbehandling;
+            UPDATE SET forstegangsbehandling = soknad.forstegangsbehandling;
         """.trimMargin()
             queryOf(
                 statement,
@@ -76,7 +76,7 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
     internal fun hentSøknader(personRef: Long)  = sessionOf(dataSource).use { session ->
         @Language("PostgreSQL")
         val statement = """ 
-            SELECT * FROM søknad
+            SELECT * FROM soknad
             JOIN person ON person.id = person_ref
             WHERE person_ref = :person_ref
         """.trimMargin()
@@ -107,9 +107,9 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
     private fun TransactionalSession.oppdaterSøknader(personRef: Long, hendelseId: UUID, førstegangsbehandling: Boolean)  {
         @Language("PostgreSQL")
         val statement = """ 
-            UPDATE søknad
+            UPDATE soknad
             SET forstegangsbehandling = :er_forstegangsbehandling
-            WHERE søknad.person_ref = :person_ref AND hendelse_id = :hendelse_id
+            WHERE soknad.person_ref = :person_ref AND hendelse_id = :hendelse_id
         """.trimMargin()
         queryOf(
             statement,

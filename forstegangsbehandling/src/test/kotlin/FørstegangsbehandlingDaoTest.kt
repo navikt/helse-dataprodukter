@@ -73,7 +73,7 @@ internal object TestDatasource {
     val migratedDb = instance.also { migrate(it) }
 }
 
-internal val tabeller = listOf("person", "søknad")
+internal val tabeller = listOf("person", "soknad")
 fun resetDatabase() {
     sessionOf(migratedDb).use { session ->
         tabeller.forEach {  table ->
