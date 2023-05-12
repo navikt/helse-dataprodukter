@@ -63,7 +63,7 @@ internal class SøknadsRiver(
     }
 
     private val ugyldigeSøknader = listOf(
-        UUID.fromString("b1ae4996-45ec-4427-9ab8-b7b3bbbf2e44")
+        UUID.fromString("8a118424-2e18-4efb-9713-ab986adeaf7d")
     )
 
     private fun forbruktTid(start: Long) = Duration.ofNanos(System.nanoTime() - start).toMillis()
