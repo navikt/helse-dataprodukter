@@ -67,7 +67,8 @@ internal class SøknadsRiver(
         "00bd7590-7411-4c35-8c11-2ac29108ff70",
         "de2fed38-fa77-48fd-9af5-3512edd69e97",
         "3093c86f-6101-4482-9faa-55aeaea82f42",
-        "e2745000-0892-4549-80a9-ee8d7280b271"
+        "e2745000-0892-4549-80a9-ee8d7280b271",
+        "6b247965-cbc3-4e22-8647-1ef4955fe8d7"
     ).map { UUID.fromString(it) }
 
     private fun forbruktTid(start: Long) = Duration.ofNanos(System.nanoTime() - start).toMillis()
