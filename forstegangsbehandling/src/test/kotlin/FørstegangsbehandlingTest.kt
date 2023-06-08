@@ -16,13 +16,15 @@ internal class FørstegangsbehandlingTest {
             tom: LocalDate,
             arbeidGjenopptatt: LocalDate?,
             hendelseId: UUID = UUID.randomUUID(),
-            opprettet: LocalDateTime = LocalDateTime.now()
+            opprettet: LocalDateTime = LocalDateTime.now(),
+            fnr: String = "12345678910",
+            orgnr: String = "123456789",
         ) = Søknad(
             hendelseId,
             UUID.randomUUID(),
             UUID.randomUUID(),
-            "12345678910",
-            "123456789",
+            fnr,
+            orgnr,
             fom,
             tom,
             arbeidGjenopptatt,

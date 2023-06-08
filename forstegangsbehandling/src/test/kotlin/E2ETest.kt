@@ -1,11 +1,17 @@
+import FørstegangsbehandlingTest.Companion.lagSøknad
 import TestDatasource.migratedDb
 import no.nav.helse.FørstegangsbehandlingDao
 import no.nav.helse.SøknadMediator
+import no.nav.helse.februar
+import no.nav.helse.januar
+import no.nav.helse.mars
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import java.util.*
 
 class E2ETest {
@@ -32,6 +38,27 @@ class E2ETest {
         val ref = dao.refFor("27845899830", "805824352")
         val søknader = dao.hentSøknader(ref)
         assertEquals(1, søknader.size)
+    }
+
+    @Test
+    fun `Ignorerer råtne testdata`() {
+        SøknadMediator(rapid, dao, mapOf("NAIS_CLUSTER_NAME" to "prod-gcp"))
+        val testSøknadMedDårligeData = lagSøknad(1.februar(2023), 18.januar(2023), null, fnr = "27845899830", orgnr = "805824352")
+        val testSøknadMedFineData = lagSøknad(1.mars(2023), 18.mars(2023), null, fnr = "27845899830", orgnr = "805824352")
+        val personRef = dao.lagrePerson(testSøknadMedDårligeData.fnr, testSøknadMedDårligeData.orgnummer)
+        dao.lagreSøknad(personRef, testSøknadMedDårligeData, true)
+        dao.lagreSøknad(personRef, testSøknadMedFineData, true)
+
+        assertThrows<Exception> {
+            rapid.sendTestMessage(testSøknad("2023-04-01", "2023-04-18"))
+        }
+
+        val rapid2 = TestRapid()
+        SøknadMediator(rapid2, dao, mapOf("NAIS_CLUSTER_NAME" to "dev-gcp"))
+
+        assertDoesNotThrow {
+            rapid2.sendTestMessage(testSøknad("2023-05-01", "2023-05-18"))
+        }
     }
 
 //    @Test
