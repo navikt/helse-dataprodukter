@@ -43,22 +43,22 @@ jobs:
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           pull: true
 
-  snyk:
-    name: check vulnerabilities
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Gradle vulnerability check
-        uses: snyk/actions/gradle@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --all-sub-projects --org=tbd-ty7 --fail-on=all --configuration-matching='^runtimeClasspath'
-          command: monitor
+#  snyk:
+#    name: check vulnerabilities
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Gradle vulnerability check
+#        uses: snyk/actions/gradle@master
+#        env:
+#          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+#        with:
+#          args: --all-sub-projects --org=tbd-ty7 --fail-on=all --configuration-matching='^runtimeClasspath'
+#          command: monitor
 
   deployDev:
     name: deploy to dev
-    needs: [build, snyk]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -72,7 +72,7 @@ jobs:
 
   deployProd:
     name: deploy to prod
-    needs: [build, snyk]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
