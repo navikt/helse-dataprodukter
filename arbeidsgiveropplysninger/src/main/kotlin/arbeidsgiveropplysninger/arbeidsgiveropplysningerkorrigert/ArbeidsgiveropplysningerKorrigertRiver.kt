@@ -1,15 +1,11 @@
 package arbeidsgiveropplysninger.arbeidsgiveropplysningerkorrigert
 
 import arbeidsgiveropplysninger.arbeidsgiveropplysningerkorrigert.ArbeidsgiveropplysningerKorrigertDto.KorrigerendeInntektektsopplysningstype
-import net.logstash.logback.argument.StructuredArguments
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
-import no.nav.helse.rapids_rivers.asLocalDateTime
+import net.logstash.logback.argument.StructuredArguments.keyValue
+import no.nav.helse.rapids_rivers.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 
 class ArbeidsgiveropplysningerKorrigertRiver(
     rapidsConnection: RapidsConnection,
@@ -52,10 +48,10 @@ class ArbeidsgiveropplysningerKorrigertRiver(
 
         arbeidsgiveropplysningerKorrigertDao.lagre(arbeidsgiveropplysningerKorrigert)
         logg.info("Lagret korrigering av arbeidsgiveropplysninger: {}, {}, {}, {}",
-            StructuredArguments.keyValue("korrigertInntektsmeldingId", korrigertInntektsmeldingId),
-            StructuredArguments.keyValue("korrigerendeInntektsopplysningId", korrigerendeInntektsopplysningId),
-            StructuredArguments.keyValue("korrigerendeInntektektsopplysningstype", korrigerendeInntektektsopplysningstype),
-            StructuredArguments.keyValue("opprettet", opprettet),
+            keyValue("korrigertInntektsmeldingId", korrigertInntektsmeldingId),
+            keyValue("korrigerendeInntektsopplysningId", korrigerendeInntektsopplysningId),
+            keyValue("korrigerendeInntektektsopplysningstype", korrigerendeInntektektsopplysningstype),
+            keyValue("opprettet", opprettet),
         )
     }
 }

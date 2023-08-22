@@ -1,5 +1,6 @@
 package no.nav.helse
 
+import net.logstash.logback.argument.StructuredArguments.keyValue
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.rapids_rivers.RapidsConnection
 import java.time.LocalDate
@@ -19,7 +20,7 @@ class SøknadMediator(
         dao.lagrePerson(søknad.fnr, søknad.orgnummer)
         logger.info("finner personRef")
         val personRef = dao.refFor(søknad.fnr, søknad.orgnummer)
-        logger.info("lagrer søknad")
+        logger.info("lagrer søknad med {}, {}", keyValue("@id", søknad.id), keyValue("søknadId", søknad.søknadId))
         dao.lagreSøknad(personRef, søknad, false)
         logger.info("henter søknadsperioder")
         val søknadsPerioder = hentSøknadsperioder(personRef)
