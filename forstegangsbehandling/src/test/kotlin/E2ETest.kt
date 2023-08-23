@@ -1,17 +1,15 @@
-import FørstegangsbehandlingTest.Companion.lagSøknad
 import TestDatasource.migratedDb
+import kotliquery.queryOf
+import kotliquery.sessionOf
 import no.nav.helse.FørstegangsbehandlingDao
 import no.nav.helse.SøknadMediator
-import no.nav.helse.februar
 import no.nav.helse.januar
-import no.nav.helse.mars
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import java.util.*
 
 class E2ETest {
@@ -27,37 +25,52 @@ class E2ETest {
     @Test
     fun `Person ender opp i databasen`() {
         SøknadMediator(rapid, dao)
-        rapid.sendTestMessage(testSøknad("2022-10-01", "2022-10-31"))
+        rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
         val result = dao.refFor("27845899830", "805824352")
         assertEquals(1L, result)
     }
     @Test
     fun `Førstegangsbehandling ender i databasen`() {
         SøknadMediator(rapid, dao)
-        rapid.sendTestMessage(testSøknad("2022-10-01", "2022-10-31"))
+        rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
         val ref = dao.refFor("27845899830", "805824352")
         val søknader = dao.hentSøknader(ref)
         assertEquals(1, søknader.size)
     }
 
     @Test
-    fun `Ignorerer råtne testdata`() {
-        SøknadMediator(rapid, dao, mapOf("NAIS_CLUSTER_NAME" to "prod-gcp"))
-        val testSøknadMedDårligeData = lagSøknad(1.februar(2023), 18.januar(2023), null, fnr = "27845899830", orgnr = "805824352")
-        val testSøknadMedFineData = lagSøknad(1.mars(2023), 18.mars(2023), null, fnr = "27845899830", orgnr = "805824352")
-        val personRef = dao.lagrePerson(testSøknadMedDårligeData.fnr, testSøknadMedDårligeData.orgnummer)
-        dao.lagreSøknad(personRef, testSøknadMedDårligeData, true)
-        dao.lagreSøknad(personRef, testSøknadMedFineData, true)
+    fun `Ignorerer lagrede søknader som har tom mindre enn fom`() {
+        SøknadMediator(rapid, dao)
+        val søknadIdForTomFørFom = UUID.randomUUID()
+        rapid.sendTestMessage(testSøknad(søknadIdForTomFørFom, 31.januar(2023).toString(), 30.januar(2023).toString()))
 
-        assertThrows<Exception> {
-            rapid.sendTestMessage(testSøknad("2023-04-01", "2023-04-18"))
-        }
+        val søknadId = UUID.randomUUID()
+        rapid.sendTestMessage(testSøknad(søknadId = søknadId, "2023-02-01", "2023-02-28"))
 
-        val rapid2 = TestRapid()
-        SøknadMediator(rapid2, dao, mapOf("NAIS_CLUSTER_NAME" to "dev-gcp"))
+        //siste søknad teller som førstegangsbehandling fordi første søknad ikke er gyldig
+        assertEquals(true, erFørstegangsbehandling(søknadId))
+        assertEquals(false, erFørstegangsbehandling(søknadIdForTomFørFom))
+    }
 
-        assertDoesNotThrow {
-            rapid2.sendTestMessage(testSøknad("2023-05-01", "2023-05-18"))
+    @Test
+    fun `Ignorerer lagrede søknader som har arbeidGjenopptatt mindre enn fom`() {
+        SøknadMediator(rapid, dao)
+        val søknadIdForArbeidGjenopptattFørFom = UUID.randomUUID()
+        rapid.sendTestMessage(testSøknad(søknadIdForArbeidGjenopptattFørFom, 2.januar(2023).toString(), 31.januar(2023).toString(), 1.januar(2023)))
+
+        val søknadId = UUID.randomUUID()
+        rapid.sendTestMessage(testSøknad(søknadId = søknadId, "2023-02-01", "2023-02-28"))
+
+        //siste søknad teller som førstegangsbehandling fordi første søknad ikke er gyldig
+        assertEquals(false, erFørstegangsbehandling(søknadIdForArbeidGjenopptattFørFom))
+        assertEquals(true, erFørstegangsbehandling(søknadId))
+    }
+
+    private fun erFørstegangsbehandling(søknadId: UUID): Boolean? {
+        @Language("PostgreSQL")
+        val query = "SELECT forstegangsbehandling FROM soknad WHERE soknad_id = ?"
+        return sessionOf(db).use {
+            it.run(queryOf(query, søknadId).map { it.boolean("forstegangsbehandling") }.asSingle)
         }
     }
 
@@ -77,9 +90,9 @@ class E2ETest {
 }
 
 @Language("JSON")
-private fun testSøknad(fom: String, tom: String) = """
+private fun testSøknad(søknadId: UUID = UUID.randomUUID(), fom: String, tom: String, arbeidGjenopptatt: LocalDate? = null) = """
     {
-      "id": "${UUID.randomUUID()}",
+      "id": "$søknadId",
       "type": "ARBEIDSTAKERE",
       "status": "SENDT",
       "fnr": "27845899830",
@@ -97,7 +110,7 @@ private fun testSøknad(fom: String, tom: String) = """
       "tom": "$tom",
       "dodsdato": null,
       "startSyketilfelle": "2022-08-01",
-      "arbeidGjenopptatt": null,
+      "arbeidGjenopptatt": ${arbeidGjenopptatt?.let { """"$it"""" }},
       "sykmeldingSkrevet": "2022-10-01T02:00:00",
       "opprettet": "2022-12-09T14:55:17.106944",
       "opprinneligSendt": null,

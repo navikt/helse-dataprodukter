@@ -3,12 +3,10 @@ package no.nav.helse
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.rapids_rivers.RapidsConnection
-import java.time.LocalDate
 
 class SøknadMediator(
     rapidsConnection: RapidsConnection,
     private val dao: FørstegangsbehandlingDao,
-    private val env: Map<String, String> = System.getenv(),
 ) {
 
     init {
@@ -30,17 +28,7 @@ class SøknadMediator(
     }
 
     private fun hentSøknadsperioder(personRef: Long): Førstegangsbehandling {
-        val søknader = dao.hentSøknader(personRef).utenDårligeTestdata()
+        val søknader = dao.hentSøknader(personRef)
         return Førstegangsbehandling().apply { søknader.forEach { motta(it) } }
     }
-
-    private fun Iterable<Søknad>.utenDårligeTestdata() =
-        filterNot { søknad ->
-            env["NAIS_CLUSTER_NAME"] == "dev-gcp" && try {
-                Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt ?: LocalDate.MAX))
-                false
-            } catch (e: Exception) {
-                true
-            }
-        }
 }

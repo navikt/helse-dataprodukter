@@ -7,18 +7,26 @@ import java.util.UUID
 
 class Førstegangsbehandling {
 
-    private var søknadsPerioder = mutableListOf<Periode>()
+    private var søknadsperioder = mutableListOf<Periode>()
     private val søknader = mutableListOf<Søknad>()
 
 
     internal fun motta(søknad: Søknad) {
         søknader.add(søknad)
-        søknadsPerioder.add(Periode(søknad.fom, minOf(søknad.tom, søknad.arbeidGjenopptatt ?: LocalDate.MAX)))
-        val nyeSøknadsPerioder = søknadsPerioder.grupperSammenhengendePerioderMedHensynTilHelg()
-        søknadsPerioder = nyeSøknadsPerioder.toMutableList()
+        val tom = when {
+            søknad.tom < søknad.fom -> null
+            søknad.arbeidGjenopptatt != null && søknad.arbeidGjenopptatt >= søknad.fom ->
+                minOf(søknad.tom, søknad.arbeidGjenopptatt)
+            søknad.arbeidGjenopptatt == null && søknad.fom <= søknad.tom ->
+                søknad.tom
+            else -> null
+        } ?: return
+        søknadsperioder.add(Periode(søknad.fom, tom))
+        val nyeSøknadsPerioder = søknadsperioder.grupperSammenhengendePerioderMedHensynTilHelg()
+        søknadsperioder = nyeSøknadsPerioder.toMutableList()
     }
 
-    internal fun førstegangsbehandlinger() = søknadsPerioder
+    internal fun førstegangsbehandlinger() = søknadsperioder
         .map { periode -> søknader.sortedBy { it.opprettet }.last { it.fom == periode.start } }
         .map { it.id }
 
@@ -29,7 +37,7 @@ class Førstegangsbehandling {
     }
 
     override fun toString(): String {
-        return søknadsPerioder.toString()
+        return søknadsperioder.toString()
     }
 }
 
