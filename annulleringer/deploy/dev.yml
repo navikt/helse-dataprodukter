@@ -1,3 +1,4 @@
 pool: nav-dev
 minReplicas: 1
 maxReplicas: 1
+sqlInstanceTier: db-f1-micro

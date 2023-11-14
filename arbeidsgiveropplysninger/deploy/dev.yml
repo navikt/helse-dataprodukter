@@ -1,1 +1,2 @@
 pool: nav-dev
+sqlInstanceTier: db-f1-micro
