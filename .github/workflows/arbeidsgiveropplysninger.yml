@@ -20,6 +20,8 @@ jobs:
   build:
     name: build docker image
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -42,19 +44,6 @@ jobs:
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           pull: true
-
-#  snyk:
-#    name: check vulnerabilities
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Gradle vulnerability check
-#        uses: snyk/actions/gradle@master
-#        env:
-#          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-#        with:
-#          args: --all-sub-projects --org=tbd-ty7 --fail-on=all --configuration-matching='^runtimeClasspath'
-#          command: monitor
 
   deployDev:
     name: deploy to dev
