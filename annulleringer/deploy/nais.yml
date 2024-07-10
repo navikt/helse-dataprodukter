@@ -35,6 +35,11 @@ spec:
         databases:
           - name: annulleringer
             envVarPrefix: DATABASE
+            users:
+              - name: bigquery_datastream
+        flags:
+          - name: cloudsql.logical_decoding
+            value: "on"
   secureLogs:
     enabled: true
   env:
