@@ -26,12 +26,6 @@ jobs:
           cache: "gradle"
       - name: test and build
         run: ./gradlew test build --info
-      - name: Login to DockerHub
-        uses: nais/docker-build-push@v0
-        with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build container image
         uses: nais/docker-build-push@v0
         id: docker-build-push
