@@ -3,32 +3,27 @@ name: Deploy arbeidsgiveropplysninger
 on:
   push:
     paths:
-      - 'arbeidsgiveropplysninger/**'
-      - 'build.gradle.kts'
-      - 'settings.gradle.kts'
-      - '.github/workflows/arbeidsgiveropplysninger.yml'
+      - "arbeidsgiveropplysninger/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - ".github/workflows/arbeidsgiveropplysninger.yml"
     branches:
       - main
-
-env:
-  DOCKER_REGISTRY: ghcr.io
-  DOCKER_IMAGE_NAME: ${{ github.repository_owner }}/helse-dataprodukter-arbeidsgiveropplysninger:${{ github.sha }}
-  TEAM: tbd
-
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   build:
     name: build docker image
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17.x'
-          cache: 'gradle'
+          distribution: "temurin"
+          java-version: "17.x"
+          cache: "gradle"
       - name: test and build
         run: ./gradlew test build --info
       - name: Login to DockerHub
@@ -38,12 +33,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build container image
-        uses: docker/build-push-action@v3
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
         with:
-          context: "arbeidsgiveropplysninger"
-          push: true
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
-          pull: true
+          team: tbd
+          docker_context: arbeidsgiveropplysninger
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
 
   deployDev:
     name: deploy to dev
@@ -53,11 +51,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: arbeidsgiveropplysninger/deploy/nais.yml
           VARS: arbeidsgiveropplysninger/deploy/dev.yml
-          IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+          VAR: image=${{ needs.build.outputs.image }}
 
   deployProd:
     name: deploy to prod
@@ -67,8 +64,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: arbeidsgiveropplysninger/deploy/nais.yml
           VARS: arbeidsgiveropplysninger/deploy/prod.yml
-          IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+          VAR: image=${{ needs.build.outputs.image }}
