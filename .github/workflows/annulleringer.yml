@@ -34,6 +34,8 @@ jobs:
           docker_context: annulleringer
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
 
   deployDev:
     name: deploy to dev
@@ -46,7 +48,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: annulleringer/deploy/nais.yml
           VARS: annulleringer/deploy/dev.yml
-          VAR: image=${{ steps.docker-build-push.outputs.image }}
+          VAR: image=${{ needs.build.outputs.image }}
 
   deployProd:
     name: deploy to prod
@@ -59,4 +61,4 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: annulleringer/deploy/nais.yml
           VARS: annulleringer/deploy/prod.yml
-          VAR: image=${{ steps.docker-build-push.outputs.image }}
+          VAR: image=${{ needs.build.outputs.image }}
