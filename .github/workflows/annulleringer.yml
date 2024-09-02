@@ -46,7 +46,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: annulleringer/deploy/nais.yml
           VARS: annulleringer/deploy/dev.yml
-          IMAGE: ${{ steps.docker-build-push.outputs.image }}
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
 
   deployProd:
     name: deploy to prod
@@ -59,4 +59,4 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: annulleringer/deploy/nais.yml
           VARS: annulleringer/deploy/prod.yml
-          IMAGE: ${{ steps.docker-build-push.outputs.image }}
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
