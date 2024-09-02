@@ -9,14 +9,14 @@ on:
       - '.github/workflows/annulleringer.yml'
     branches:
       - main
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   build:
     name: build docker image
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
