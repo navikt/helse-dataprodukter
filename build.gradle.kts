@@ -1,8 +1,9 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val jvmTarget = "17"
+val target = "21"
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "2.0.21"
 }
 
 
@@ -11,17 +12,21 @@ allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     java {
-        sourceCompatibility = JavaVersion.toVersion(jvmTarget)
-        targetCompatibility = JavaVersion.toVersion(jvmTarget)
+        sourceCompatibility = JavaVersion.toVersion(target)
+        targetCompatibility = JavaVersion.toVersion(target)
     }
 
     tasks {
         withType<KotlinCompile> {
-            kotlinOptions.jvmTarget = jvmTarget
+            compilerOptions {
+                jvmTarget.set(JvmTarget.JVM_21)
+            }
         }
 
         named<KotlinCompile>("compileTestKotlin") {
-            kotlinOptions.jvmTarget = jvmTarget
+            compilerOptions {
+                jvmTarget.set(JvmTarget.JVM_21)
+            }
         }
 
         withType<Test> {

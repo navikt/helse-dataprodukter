@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(project(":felles"))
 
-    testImplementation("org.testcontainers:postgresql:1.19.5")
+    testImplementation("org.testcontainers:postgresql:1.20.3")
     testImplementation("io.mockk:mockk:1.13.9")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
