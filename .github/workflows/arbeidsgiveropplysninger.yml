@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "arbeidsgiveropplysninger/**"
+      - "felles/**"
       - "build.gradle.kts"
       - "settings.gradle.kts"
       - ".github/workflows/arbeidsgiveropplysninger.yml"

@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "forstegangsbehandling/**"
+      - "felles/**"
       - "build.gradle.kts"
       - "settings.gradle.kts"
       - ".github/workflows/førstegangsbehandling.yml"

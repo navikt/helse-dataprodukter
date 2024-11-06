@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'annulleringer/**'
+      - 'felles/**'
       - 'build.gradle.kts'
       - 'settings.gradle.kts'
       - '.github/workflows/annulleringer.yml'
