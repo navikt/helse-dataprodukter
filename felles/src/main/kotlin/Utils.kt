@@ -16,5 +16,5 @@ fun datasource(username: String, password: String, url: String) =
 fun migrate(dataSource: HikariDataSource) =
     Flyway.configure()
         .dataSource(dataSource)
-        .load().also { it.baseline() }
+        .load()
         .migrate()
