@@ -32,6 +32,7 @@ jobs:
         id: docker-build-push
         with:
           team: tbd
+          image_suffix: annulleringer
           docker_context: annulleringer
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
