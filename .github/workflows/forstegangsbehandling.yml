@@ -26,7 +26,7 @@ jobs:
           java-version: '21.x'
           cache: 'gradle'
       - name: test and build
-        run: ./gradlew test build --info
+        run: ./gradlew :forstegangsbehandling:test :forstegangsbehandling:build --info
       - name: Build container image
         uses: nais/docker-build-push@v0
         id: docker-build-push
