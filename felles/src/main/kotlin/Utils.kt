@@ -17,4 +17,4 @@ fun migrate(dataSource: HikariDataSource) =
     Flyway.configure()
         .dataSource(dataSource)
         .load()
-        .repair()
+        .migrate()
