@@ -1,3 +1,5 @@
+val tbdLibsVersion = "2024.11.12-11.09-16cf2599"
+
 plugins {
     application
 }
@@ -5,6 +7,7 @@ plugins {
 dependencies {
     implementation(project(":felles"))
 
+    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:$tbdLibsVersion")
     testImplementation("org.testcontainers:postgresql:1.20.3")
     testImplementation("io.mockk:mockk:1.13.9")
 }

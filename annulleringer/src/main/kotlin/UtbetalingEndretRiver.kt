@@ -1,9 +1,15 @@
 package no.nav.helse
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.micrometer.core.instrument.MeterRegistry
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.Utbetalingstype.Companion.gyldigeTyper
 import no.nav.helse.Utbetalingstype.Companion.values
-import no.nav.helse.rapids_rivers.*
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -29,7 +35,7 @@ internal class UtbetalingEndretRiver(
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+    override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
         val utbetalingId = UUID.fromString(packet["utbetalingId"].asText())
         val korrelasjonsId = UUID.fromString(packet["korrelasjonsId"].asText())
         val utbetalingstype = enumValueOf<Utbetalingstype>(packet["type"].asText())

@@ -1,5 +1,6 @@
 import TestDatasource.getDataSource
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.Mediator
@@ -8,7 +9,6 @@ import no.nav.helse.Utbetalingstype
 import no.nav.helse.Utbetalingstype.ANNULLERING
 import no.nav.helse.Utbetalingstype.UTBETALING
 import no.nav.helse.VedtakFattetDao
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

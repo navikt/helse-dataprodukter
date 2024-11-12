@@ -1,12 +1,7 @@
 package no.nav.helse
 
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.DayOfWeek.SUNDAY
-import java.time.DayOfWeek.SATURDAY
-import java.time.DayOfWeek.FRIDAY
-
 
 
 // Understands beginning and end of a time interval

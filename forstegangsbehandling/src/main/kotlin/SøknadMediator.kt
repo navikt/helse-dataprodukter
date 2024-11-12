@@ -1,8 +1,8 @@
 package no.nav.helse
 
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import net.logstash.logback.argument.StructuredArguments.kv
-import no.nav.helse.rapids_rivers.RapidsConnection
 
 class SøknadMediator(
     rapidsConnection: RapidsConnection,

@@ -1,12 +1,20 @@
 package no.nav.helse
 
-import io.prometheus.client.Counter
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import com.github.navikt.tbd_libs.rapids_and_rivers.asOptionalLocalDate
+import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
 import net.logstash.logback.argument.StructuredArguments.kv
-import no.nav.helse.rapids_rivers.*
 import java.time.Duration
 import java.util.*
-
-val messageCounter: Counter = Counter.build("soknader_lest", "Antall førstegangssøknader lest").register()
 
 internal class SøknadsRiver(
     rapidsConnection: RapidsConnection,
@@ -32,14 +40,14 @@ internal class SøknadsRiver(
         }.register(this)
     }
 
-    override fun onError(problems: MessageProblems, context: MessageContext) {
+    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
         // Burde ikke være problem med søknadsmeldingen
         throw Exception("Problem med meding: $problems")
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+    override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
         val start = System.nanoTime()
-        messageCounter.inc()
+        Counter.builder("soknader_lest").description("Antall førstegangssøknader lest").register(meterRegistry).increment()
         val søknadId = packet["id"].asText().toUUID()
         if (søknadId in ugyldigeSøknader) return
         val søknad = Søknad(

@@ -1,10 +1,10 @@
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.helse.*
 import no.nav.helse.IMediator
 import no.nav.helse.Utbetaling
 import no.nav.helse.Vedtak
 import no.nav.helse.VedtakFattetRiver
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime

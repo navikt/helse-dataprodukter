@@ -9,10 +9,10 @@ import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndter
 import arbeidsgiveropplysninger.inntektsmeldinghåndtert.InntektsmeldingHåndtertRiver
 import arbeidsgiveropplysninger.inntektsmeldingregistrert.InntektsmeldingRegistrertDao
 import arbeidsgiveropplysninger.inntektsmeldingregistrert.InntektsmeldingRegistrertRiver
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import no.nav.helse.datasource
 import no.nav.helse.migrate
 import no.nav.helse.rapids_rivers.RapidApplication
-import no.nav.helse.rapids_rivers.RapidsConnection
 
 fun main() {
     val env = System.getenv()
