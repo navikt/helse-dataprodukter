@@ -30,9 +30,9 @@ internal class SykepengegrunnlagAvvikAktivitetRiver(
 
     init {
         River(rapidsConnection).apply {
+            precondition { it.requireValue("@event_name", "aktivitetslogg_ny_aktivitet") }
+            precondition { it.require("aktiviteter", ::minstÉnAktivitetMedRelevantVarsel) }
             validate {
-                it.demandValue("@event_name", "aktivitetslogg_ny_aktivitet")
-                it.demand("aktiviteter", ::minstÉnAktivitetMedRelevantVarsel)
                 it.requireKey("@id")
                 it.requireArray("aktiviteter") {
                     requireKey("nivå", "melding")

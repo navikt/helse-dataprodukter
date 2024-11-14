@@ -24,7 +24,7 @@ class ArbeidsgiveropplysningerKorrigertRiver(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "arbeidsgiveropplysninger_korrigert") }
+            precondition { it.requireValue("@event_name", "arbeidsgiveropplysninger_korrigert") }
             validate {
                 it.requireKey(
                     "@id",

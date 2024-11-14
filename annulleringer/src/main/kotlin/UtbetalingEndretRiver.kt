@@ -25,8 +25,8 @@ internal class UtbetalingEndretRiver(
 
     init {
         River(rapidsConnection).apply {
+            precondition { it.requireValue("@event_name", "utbetaling_endret") }
             validate {
-                it.demandValue("@event_name", "utbetaling_endret")
                 it.requireKey("korrelasjonsId", "utbetalingId", "arbeidsgiverOppdrag.fagsystemId", "personOppdrag.fagsystemId")
                 it.requireAny("gjeldendeStatus", terminaltilstander)
                 it.requireAny("type", gyldigeTyper.values())

@@ -23,8 +23,8 @@ internal class SøknadsRiver(
 
     init {
         River(rapidsConnection).apply {
+            precondition { it.requireValue("@event_name", "sendt_søknad_nav") }
             validate {
-                it.demandValue("@event_name", "sendt_søknad_nav")
                 it.requireKey(
                     "@id",
                     "id",

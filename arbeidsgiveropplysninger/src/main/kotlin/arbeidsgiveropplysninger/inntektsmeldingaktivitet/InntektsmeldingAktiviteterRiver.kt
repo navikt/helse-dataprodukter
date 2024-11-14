@@ -42,10 +42,12 @@ internal class InntektsmeldingAktiviteterRiver(
 
     init {
         River(rapidsConnection).apply {
+            precondition {
+                it.requireValue("@event_name", "aktivitetslogg_ny_aktivitet")
+                it.require("aktiviteter", ::minstÉnAktivitetMedRelevantVarsel)
+                it.require("@forårsaket_av", ::forårsaketAvInntektsmelding) // TODO: bestemme om vi skal filtrere på foråraketAv eller kontekster
+            }
             validate {
-                it.demandValue("@event_name", "aktivitetslogg_ny_aktivitet")
-                it.demand("aktiviteter", ::minstÉnAktivitetMedRelevantVarsel)
-                it.demand("@forårsaket_av", ::forårsaketAvInntektsmelding) // TODO: bestemme om vi skal filtrere på foråraketAv eller kontekster
                 it.requireKey("@id", "@forårsaket_av.id")
                 it.requireArray("aktiviteter") {
                     requireKey("nivå", "melding")
