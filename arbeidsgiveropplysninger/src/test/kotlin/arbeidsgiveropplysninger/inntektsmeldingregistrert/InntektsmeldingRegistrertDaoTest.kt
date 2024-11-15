@@ -2,25 +2,19 @@ package arbeidsgiveropplysninger.inntektsmeldingregistrert
 
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.getDataSource
-import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.resetDatabase
+import no.nav.helse.arbeidsgiveropplysninger.databaseTest
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import javax.sql.DataSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class InntektsmeldingRegistrertDaoTest {
 
-    private val dataSource = getDataSource()
-    val dao = InntektsmeldingRegistrertDao(dataSource)
-
     @Test
-    fun `lagrer kobling mellom inntektsmeldingens hendelseId og dokumentId i databasen`() {
+    fun `lagrer kobling mellom inntektsmeldingens hendelseId og dokumentId i databasen`() = e2e {
         val id = UUID.randomUUID()
         val hendelseId = UUID.randomUUID()
         val dokumentId = UUID.randomUUID()
@@ -39,7 +33,7 @@ class InntektsmeldingRegistrertDaoTest {
     }
 
     @Test
-    fun `lagrer ikke kobling mellom hendelseId og dokumentId dersom den eksisterer i databasen fra før`() {
+    fun `lagrer ikke kobling mellom hendelseId og dokumentId dersom den eksisterer i databasen fra før`() = e2e {
         val hendelseId = UUID.randomUUID()
         val dokumentId = UUID.randomUUID()
         val opprettet = LocalDate.EPOCH.atStartOfDay()
@@ -64,12 +58,19 @@ class InntektsmeldingRegistrertDaoTest {
         assertAntallInnslag(1)
     }
 
-    @AfterEach
-    fun reset() {
-        resetDatabase()
+    data class E2ETestContext(
+        val dao: InntektsmeldingRegistrertDao,
+        val dataSource: DataSource
+    )
+
+    private fun e2e(testblokk: E2ETestContext.() -> Unit) {
+        databaseTest { ds ->
+            val dao = InntektsmeldingRegistrertDao(ds)
+            testblokk(E2ETestContext(dao, ds))
+        }
     }
 
-    private fun assertInnslag(
+    private fun E2ETestContext.assertInnslag(
         id: UUID,
         hendelseId: UUID,
         dokumentId: UUID,
@@ -85,7 +86,7 @@ class InntektsmeldingRegistrertDaoTest {
         Assertions.assertEquals(forventetAntall, antall)
     }
 
-    private fun assertAntallInnslag(
+    private fun E2ETestContext.assertAntallInnslag(
         forventetAntall: Int
     ) {
         @Language("PostgreSQL")

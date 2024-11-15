@@ -1,4 +1,3 @@
-import TestDatasource.getDataSource
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import kotliquery.queryOf
@@ -16,19 +15,9 @@ import java.util.*
 import javax.sql.DataSource
 
 internal class EndToEndTest {
-    private val dataSource: DataSource = getDataSource()
-    private val testRapid = TestRapid()
-
-    init {
-        Mediator(
-            testRapid,
-            VedtakFattetDao(dataSource),
-            UtbetalingEndretDao(dataSource)
-        )
-    }
 
     @Test
-    fun `happy case`() {
+    fun `happy case`() = e2e {
         val vedtaksperiodeId = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
         val korrelasjonsId = UUID.randomUUID()
@@ -40,7 +29,7 @@ internal class EndToEndTest {
     }
 
     @Test
-    fun `happy case med flere vedtaksperioder`() {
+    fun `happy case med flere vedtaksperioder`() = e2e {
         val vedtaksperiodeId = UUID.randomUUID()
         val vedtaksperiodeId2 = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
@@ -57,7 +46,7 @@ internal class EndToEndTest {
     }
 
     @Test
-    fun `markerer kun relevante ting som annullert`() {
+    fun `markerer kun relevante ting som annullert`() = e2e {
         val vedtaksperiodeId = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
         val korrelasjonsId = UUID.randomUUID()
@@ -68,7 +57,20 @@ internal class EndToEndTest {
         assertAnnullertVedtak(vedtaksperiodeId, false)
     }
 
-    private fun assertAnnullertUtbetaling(korrelasjonsId: UUID, annullert: Boolean) {
+    private fun e2e(testblokk: E2ETestContext.() -> Unit) {
+        databaseTest { ds ->
+            testblokk(E2ETestContext(ds, TestRapid()))
+        }
+    }
+
+    data class E2ETestContext(
+        val dataSource: DataSource,
+        val testRapid: TestRapid
+    ) {
+        val mediator = Mediator(testRapid, VedtakFattetDao(dataSource), UtbetalingEndretDao(dataSource))
+    }
+
+    private fun E2ETestContext.assertAnnullertUtbetaling(korrelasjonsId: UUID, annullert: Boolean) {
         @Language("PostgreSQL")
         val query = "SELECT COUNT(1) FROM utbetaling WHERE korrelasjon_id = ? AND annullert = ?"
         val antall = sessionOf(dataSource).use { session ->
@@ -77,7 +79,7 @@ internal class EndToEndTest {
         assertEquals(1, antall)
     }
 
-    private fun assertAnnullertVedtak(vedtaksperiodeId: UUID, annullert: Boolean) {
+    private fun E2ETestContext.assertAnnullertVedtak(vedtaksperiodeId: UUID, annullert: Boolean) {
         @Language("PostgreSQL")
         val query = "SELECT COUNT(1) FROM vedtak_fattet WHERE vedtaksperiode_id = ? AND annullert = ?"
         val antall = sessionOf(dataSource).use { session ->
@@ -86,7 +88,7 @@ internal class EndToEndTest {
         assertEquals(1, antall)
     }
 
-    private fun sendVedtakFattet(utbetalingId: UUID, vedtaksperiodeId: UUID) {
+    private fun E2ETestContext.sendVedtakFattet(utbetalingId: UUID, vedtaksperiodeId: UUID) {
         testRapid.sendTestMessage(
             vedtakFattetMedVerdi(
                 mapOf(
@@ -97,7 +99,7 @@ internal class EndToEndTest {
         )
     }
 
-    private fun sendUtbetalingEndret(
+    private fun E2ETestContext.sendUtbetalingEndret(
         utbetalingId: UUID,
         korrelasjonsId: UUID,
         utbetalingstype: Utbetalingstype,
@@ -113,7 +115,7 @@ internal class EndToEndTest {
         )
     }
 
-    private fun vedtakFattetMedVerdi(endringer: Map<String, String>): String {
+    private fun E2ETestContext.vedtakFattetMedVerdi(endringer: Map<String, String>): String {
         val json = vedtakFattetJsonMap.toMutableMap().apply {
             endringer.forEach {(nøkkel, verdi) ->
                 replace(nøkkel, verdi)
@@ -122,7 +124,7 @@ internal class EndToEndTest {
         return jacksonObjectMapper().writeValueAsString(json)
     }
 
-    private fun utbetalingEndretMedVerdi(endringer: Map<String, String>): String {
+    private fun E2ETestContext.utbetalingEndretMedVerdi(endringer: Map<String, String>): String {
         val json = utbetalingEndretJsonMap.toMutableMap().apply {
             endringer.forEach {(nøkkel, verdi) ->
                 replace(nøkkel, verdi)

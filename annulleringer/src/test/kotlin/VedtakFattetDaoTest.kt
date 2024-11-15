@@ -1,28 +1,19 @@
-import TestDatasource.getDataSource
-import TestDatasource.resetDatabase
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.Vedtak
 import no.nav.helse.VedtakFattetDao
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.util.*
+import javax.sql.DataSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class VedtakFattetDaoTest {
 
-    private val dataSource = getDataSource()
-    private val dao = VedtakFattetDao(dataSource)
-
-    @BeforeEach
-    fun reset() = resetDatabase()
-
     @Test
-    fun `kan lagre vedtak`() {
+    fun `kan lagre vedtak`() = e2e {
         val hendelseId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
@@ -31,7 +22,7 @@ internal class VedtakFattetDaoTest {
         assertVedtak(hendelseId, vedtaksperiodeId, utbetalingId, fattetTidspunkt)
     }
     @Test
-    fun `kan lese vedtak`() {
+    fun `kan lese vedtak`() = e2e {
         val vedtaksperiodeId = UUID.randomUUID()
         opprettVedtak(vedtaksperiodeId)
         val vedtak = dao.finnVedtakFor(vedtaksperiodeId)
@@ -39,7 +30,7 @@ internal class VedtakFattetDaoTest {
     }
 
     @Test
-    fun `kan lagre og lese vedtak`() {
+    fun `kan lagre og lese vedtak`() = e2e {
         val hendelseId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
@@ -51,7 +42,7 @@ internal class VedtakFattetDaoTest {
     }
 
     @Test
-    fun `Markerer ikke vedtak som har annen utbetalingId som annullert`() {
+    fun `Markerer ikke vedtak som har annen utbetalingId som annullert`() = e2e {
         val hendelseId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
         val fattetTidspunkt = LocalDateTime.now()
@@ -65,7 +56,7 @@ internal class VedtakFattetDaoTest {
     }
 
     @Test
-    fun `Kan markere vedtak som annullert`() {
+    fun `Kan markere vedtak som annullert`() = e2e {
         val hendelseId1 = UUID.randomUUID()
         val hendelseId2 = UUID.randomUUID()
         val vedtaksperiodeId1 = UUID.randomUUID()
@@ -84,7 +75,18 @@ internal class VedtakFattetDaoTest {
         assertVedtak(hendelseId2, vedtaksperiodeId2, utbetalingId, fattetTidspunkt2, true)
     }
 
-    private fun assertVedtak(
+    data class E2ETestContext(
+        val dataSource: DataSource,
+        val dao: VedtakFattetDao
+    )
+    private fun e2e(testblokk: E2ETestContext.() -> Unit) {
+        databaseTest { ds ->
+            val dao = VedtakFattetDao(ds)
+            testblokk(E2ETestContext(ds, dao))
+        }
+    }
+
+    private fun E2ETestContext.assertVedtak(
         hendelseId: UUID,
         vedtaksperiodeId: UUID,
         utbetalingId: UUID?,
@@ -100,7 +102,7 @@ internal class VedtakFattetDaoTest {
         assertEquals(1, antall)
     }
 
-    private fun opprettVedtak(vedtaksperiodeId: UUID) {
+    private fun E2ETestContext.opprettVedtak(vedtaksperiodeId: UUID) {
         @Language("PostgreSQL")
         val query = "INSERT INTO vedtak_fattet(vedtaksperiode_id, hendelse_id, utbetaling_id, fattet_tidspunkt) VALUES (?, ?, ?, ?)"
         sessionOf(dataSource).use { session ->

@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val junitJupiterVersion = "5.11.3"
 
 plugins {
@@ -24,6 +23,12 @@ allprojects {
     tasks {
         withType<Test> {
             useJUnitPlatform()
+
+            val parallellDisabled = System.getenv("CI" ) == "true"
+            systemProperty("junit.jupiter.execution.parallel.enabled", parallellDisabled.not().toString())
+            systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+            systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
+            systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "8")
         }
     }
 

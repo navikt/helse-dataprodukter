@@ -2,26 +2,20 @@ package arbeidsgiveropplysninger.inntektsmeldinghåndtert
 
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.getDataSource
-import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.resetDatabase
+import no.nav.helse.arbeidsgiveropplysninger.databaseTest
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import javax.sql.DataSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class InntektsmeldingHåndtertDaoTest {
 
-    private val dataSource = getDataSource()
-    val dao = InntektsmeldingHåndtertDao(dataSource)
-
     @Test
-    fun `lagrer kobling mellom vedtaksperiode og inntektsmelding i databasen`() {
+    fun `lagrer kobling mellom vedtaksperiode og inntektsmelding i databasen`() = e2e {
         val id = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
         val hendelseId = UUID.randomUUID()
@@ -40,7 +34,7 @@ class InntektsmeldingHåndtertDaoTest {
     }
 
     @Test
-    fun `Finner nyeste inntektsmeldingId knyttet til en vedtaksperiode`() {
+    fun `Finner nyeste inntektsmeldingId knyttet til en vedtaksperiode`() = e2e {
         val vedtaksperiodeId = UUID.randomUUID()
         val hendelseId1 = UUID.randomUUID()
         val hendelseId2 = UUID.randomUUID()
@@ -65,17 +59,24 @@ class InntektsmeldingHåndtertDaoTest {
     }
 
     @Test
-    fun `Returnerer null dersom vi ikke finner en kobling mellom vedtaksperiodeId og inntektsmeldingId`() {
+    fun `Returnerer null dersom vi ikke finner en kobling mellom vedtaksperiodeId og inntektsmeldingId`() = e2e {
         val vedtaksperiodeId = UUID.randomUUID()
         assertNull(dao.finnHendelseId(vedtaksperiodeId))
     }
 
-    @AfterEach
-    fun reset() {
-        resetDatabase()
+    data class E2ETestContext(
+        val dao: InntektsmeldingHåndtertDao,
+        val dataSource: DataSource
+    )
+
+    private fun e2e(testblokk: E2ETestContext.() -> Unit) {
+        databaseTest { ds ->
+            val dao = InntektsmeldingHåndtertDao(ds)
+            testblokk(E2ETestContext(dao, ds))
+        }
     }
 
-    private fun assertInnslag(
+    private fun E2ETestContext.assertInnslag(
         id: UUID,
         vedtaksperiodeId: UUID,
         hendelseId: UUID,
@@ -91,7 +92,7 @@ class InntektsmeldingHåndtertDaoTest {
         assertEquals(forventetAntall, antall)
     }
 
-    private fun assertAntallInnslag(
+    private fun E2ETestContext.assertAntallInnslag(
         forventetAntall: Int
     ) {
         @Language("PostgreSQL")

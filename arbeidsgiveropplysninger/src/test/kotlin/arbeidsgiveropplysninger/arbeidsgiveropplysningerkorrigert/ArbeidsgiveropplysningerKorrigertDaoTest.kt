@@ -3,24 +3,18 @@ package arbeidsgiveropplysninger.arbeidsgiveropplysningerkorrigert
 import arbeidsgiveropplysninger.arbeidsgiveropplysningerkorrigert.ArbeidsgiveropplysningerKorrigertDto.KorrigerendeInntektektsopplysningstype.INNTEKTSMELDING
 import kotliquery.queryOf
 import kotliquery.sessionOf
-import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.getDataSource
-import no.nav.helse.arbeidsgiveropplysninger.TestDatasource.resetDatabase
+import no.nav.helse.arbeidsgiveropplysninger.databaseTest
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.util.*
+import javax.sql.DataSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ArbeidsgiveropplysningerKorrigertDaoTest {
 
-    private val dataSource = getDataSource()
-    private val dao = ArbeidsgiveropplysningerKorrigertDao(dataSource)
-
     @Test
-    fun `lagrer korrigering av arbeidsgiveropplysninger i databasen`() {
+    fun `lagrer korrigering av arbeidsgiveropplysninger i databasen`() = e2e {
         val id = UUID.randomUUID()
         val korrigertInntektsmeldingId = UUID.randomUUID()
         val korrigerendeInntektsopplysningId = UUID.randomUUID()
@@ -47,12 +41,19 @@ class ArbeidsgiveropplysningerKorrigertDaoTest {
         assertAntallInnslag(1)
     }
 
-    @BeforeEach
-    fun reset() {
-        resetDatabase()
+    data class E2ETestContext(
+        val dao: ArbeidsgiveropplysningerKorrigertDao,
+        val dataSource: DataSource
+    )
+
+    private fun e2e(testblokk: E2ETestContext.() -> Unit) {
+        databaseTest { ds ->
+            val dao = ArbeidsgiveropplysningerKorrigertDao(ds)
+            testblokk(E2ETestContext(dao, ds))
+        }
     }
 
-    private fun assertInnslag(
+    private fun E2ETestContext.assertInnslag(
         id: UUID,
         korrigertInntektsmeldingId: UUID,
         korrigerendeInntektsopplysningId: UUID,
@@ -69,7 +70,7 @@ class ArbeidsgiveropplysningerKorrigertDaoTest {
         assertEquals(forventetAntall, antall)
     }
 
-    private fun assertAntallInnslag(
+    private fun E2ETestContext.assertAntallInnslag(
         forventetAntall: Int
     ) {
         @Language("PostgreSQL")

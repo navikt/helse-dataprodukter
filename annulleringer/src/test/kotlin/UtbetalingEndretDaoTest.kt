@@ -1,4 +1,3 @@
-import TestDatasource.getDataSource
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import no.nav.helse.Utbetaling
@@ -12,14 +11,12 @@ import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import java.time.LocalDateTime
 import java.util.*
+import javax.sql.DataSource
 
 internal class UtbetalingEndretDaoTest {
 
-    private val dataSource = getDataSource()
-    private val dao = UtbetalingEndretDao(dataSource)
-
     @Test
-    fun `kan lagre utbetaling`() {
+    fun `kan lagre utbetaling`() = e2e {
         val korrelasjonsId = UUID.randomUUID()
         val arbeidsgiverFagsystemId = "${UUID.randomUUID()}"
         val personFagsystemId = "${UUID.randomUUID()}"
@@ -40,7 +37,7 @@ internal class UtbetalingEndretDaoTest {
     }
 
     @Test
-    fun `kan lagre versjon`() {
+    fun `kan lagre versjon`() = e2e {
         val korrelasjonsId = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
         val utbetalingstype = Utbetalingstype.UTBETALING
@@ -55,7 +52,7 @@ internal class UtbetalingEndretDaoTest {
     }
 
     @Test
-    fun `kan ikke lagre versjon uten utbetaling`() {
+    fun `kan ikke lagre versjon uten utbetaling`() = e2e {
         val korrelasjonsId = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
         val utbetalingstype = Utbetalingstype.UTBETALING
@@ -66,7 +63,7 @@ internal class UtbetalingEndretDaoTest {
     }
 
     @Test
-    fun `kan finne utbetaling`() {
+    fun `kan finne utbetaling`() = e2e {
         val korrelasjonsId = UUID.randomUUID()
         val arbeidsgiverFagsystemId = "${UUID.randomUUID()}"
         val personFagsystemId = "${UUID.randomUUID()}"
@@ -86,7 +83,7 @@ internal class UtbetalingEndretDaoTest {
     }
 
     @Test
-    fun `kan finne utbetaling med versjon`() {
+    fun `kan finne utbetaling med versjon`() = e2e {
         val korrelasjonsId = UUID.randomUUID()
         val utbetalingId = UUID.randomUUID()
         val utbetalingstype = Utbetalingstype.UTBETALING
@@ -110,7 +107,7 @@ internal class UtbetalingEndretDaoTest {
     }
 
     @Test
-    fun `Kan markere utbetaling som annullert`() {
+    fun `Kan markere utbetaling som annullert`() = e2e {
         val korrelasjonsId = UUID.randomUUID()
         val arbeidsgiverFagsystemId = "${UUID.randomUUID()}"
         val personFagsystemId = "${UUID.randomUUID()}"
@@ -121,7 +118,7 @@ internal class UtbetalingEndretDaoTest {
     }
 
     @Test
-    fun `Markerer ikke utbetaling med annen korrelasjonsId som annullert`() {
+    fun `Markerer ikke utbetaling med annen korrelasjonsId som annullert`() = e2e {
         val korrelasjonsId = UUID.randomUUID()
         val arbeidsgiverFagsystemId = "${UUID.randomUUID()}"
         val personFagsystemId = "${UUID.randomUUID()}"
@@ -131,7 +128,18 @@ internal class UtbetalingEndretDaoTest {
         assertUtbetaling(korrelasjonsId, arbeidsgiverFagsystemId, personFagsystemId, false, 1)
     }
 
-    private fun assertUtbetaling(korrelasjonsId: UUID, arbeidsgiverFagsystemId: String, personFagsystemId: String, annullert: Boolean, forventetAntall: Int) {
+    data class E2ETestContext(
+        val dataSource: DataSource,
+        val dao: UtbetalingEndretDao
+    )
+    private fun e2e(testblokk: E2ETestContext.() -> Unit) {
+        databaseTest { ds ->
+            val dao = UtbetalingEndretDao(ds)
+            testblokk(E2ETestContext(ds, dao))
+        }
+    }
+
+    private fun E2ETestContext.assertUtbetaling(korrelasjonsId: UUID, arbeidsgiverFagsystemId: String, personFagsystemId: String, annullert: Boolean, forventetAntall: Int) {
         @Language("PostgreSQL")
         val query = "SELECT COUNT(1) FROM utbetaling WHERE korrelasjon_id = ? AND arbeidsgiver_fagsystemid = ? AND person_fagsystemid = ? AND annullert = ?"
         val antall = sessionOf(dataSource).use { session ->
@@ -142,7 +150,7 @@ internal class UtbetalingEndretDaoTest {
         }
     }
 
-    private fun assertUtbetalingsversjon(
+    private fun E2ETestContext.assertUtbetalingsversjon(
         korrelasjonsId: UUID,
         utbetalingId: UUID,
         utbetalingstype: Utbetalingstype,

@@ -1,4 +1,3 @@
-import TestDatasource.migratedDb
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import kotliquery.queryOf
 import kotliquery.sessionOf
@@ -7,30 +6,22 @@ import no.nav.helse.SøknadMediator
 import no.nav.helse.januar
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.*
+import javax.sql.DataSource
 
 class E2ETest {
 
-    private val db = migratedDb
-    private val dao = FørstegangsbehandlingDao(db)
-    private val rapid = TestRapid()
-
-
-    @BeforeEach
-    fun reset() = resetDatabase()
-
     @Test
-    fun `Person ender opp i databasen`() {
+    fun `Person ender opp i databasen`() = e2e {
         SøknadMediator(rapid, dao)
         rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
         val result = dao.refFor("27845899830", "805824352")
         assertEquals(1L, result)
     }
     @Test
-    fun `Førstegangsbehandling ender i databasen`() {
+    fun `Førstegangsbehandling ender i databasen`() = e2e {
         SøknadMediator(rapid, dao)
         rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
         val ref = dao.refFor("27845899830", "805824352")
@@ -39,7 +30,7 @@ class E2ETest {
     }
 
     @Test
-    fun `Ignorerer lagrede søknader som har tom mindre enn fom`() {
+    fun `Ignorerer lagrede søknader som har tom mindre enn fom`() = e2e {
         SøknadMediator(rapid, dao)
         val søknadIdForTomFørFom = UUID.randomUUID()
         rapid.sendTestMessage(testSøknad(søknadIdForTomFørFom, 31.januar(2023).toString(), 30.januar(2023).toString()))
@@ -53,7 +44,7 @@ class E2ETest {
     }
 
     @Test
-    fun `Ignorerer lagrede søknader som har arbeidGjenopptatt mindre enn fom`() {
+    fun `Ignorerer lagrede søknader som har arbeidGjenopptatt mindre enn fom`() = e2e {
         SøknadMediator(rapid, dao)
         val søknadIdForArbeidGjenopptattFørFom = UUID.randomUUID()
         rapid.sendTestMessage(testSøknad(søknadIdForArbeidGjenopptattFørFom, 2.januar(2023).toString(), 31.januar(2023).toString(), 1.januar(2023)))
@@ -66,10 +57,23 @@ class E2ETest {
         assertEquals(true, erFørstegangsbehandling(søknadId))
     }
 
-    private fun erFørstegangsbehandling(søknadId: UUID): Boolean? {
+    private fun e2e(testblokk: E2ETestContext.() -> Unit) {
+        val rapid = TestRapid()
+        databaseTest { ds ->
+            testblokk(E2ETestContext(rapid, this, ds))
+        }
+    }
+
+    data class E2ETestContext(
+        val rapid: TestRapid,
+        val dao: FørstegangsbehandlingDao,
+        val dataSource: DataSource
+    )
+
+    fun E2ETestContext.erFørstegangsbehandling(søknadId: UUID): Boolean? {
         @Language("PostgreSQL")
         val query = "SELECT forstegangsbehandling FROM soknad WHERE soknad_id = ?"
-        return sessionOf(db).use {
+        return sessionOf(dataSource).use {
             it.run(queryOf(query, søknadId).map { it.boolean("forstegangsbehandling") }.asSingle)
         }
     }

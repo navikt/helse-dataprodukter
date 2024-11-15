@@ -1,91 +1,44 @@
 import FørstegangsbehandlingTest.Companion.lagSøknad
-import TestDatasource.migratedDb
-import com.zaxxer.hikari.HikariDataSource
-import kotliquery.queryOf
-import kotliquery.sessionOf
+import com.github.navikt.tbd_libs.test_support.CleanupStrategy
+import com.github.navikt.tbd_libs.test_support.DatabaseContainers
 import no.nav.helse.FørstegangsbehandlingDao
 import no.nav.helse.februar
 import no.nav.helse.januar
-import org.flywaydb.core.Flyway
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.containers.output.Slf4jLogConsumer
+import javax.sql.DataSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+val databaseContainer = DatabaseContainers.container("dataprodukt-forstegangsbehandling", CleanupStrategy.tables("person,soknad"), walLevelLogical = true)
+
 internal class FørstegangsbehandlingDaoTest {
 
-    private val db = migratedDb
-    private val dao = FørstegangsbehandlingDao(db)
-
-    @BeforeEach
-    fun reset() = resetDatabase()
-
     @Test
-    fun `insert førstegangssøknad`() {
+    fun `insert førstegangssøknad`() = databaseTest {
         val testSøknad = lagSøknad( 1.januar(2022), 31.januar(2022), null)
-        val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
-        val result = dao.lagreSøknad(personRef, testSøknad, true)
+        val personRef = lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
+        val result = lagreSøknad(personRef, testSøknad, true)
         assertTrue(result == 1) {"PersonOgOrgnummer ref: $result er ikke riktig"}
     }
 
     @Test
-    fun `hent søknader for personRef`() {
+    fun `hent søknader for personRef`() = databaseTest {
         val testSøknad = lagSøknad( 1.januar(2022), 31.januar(2022), null)
         val testSøknad2 = lagSøknad( 1.februar(2022), 28.februar(2022), null)
-        val personRef = dao.lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
-        dao.lagreSøknad(personRef, testSøknad, true)
-        dao.lagreSøknad(personRef, testSøknad2, false)
-        val søknader = dao.hentSøknader(personRef)
+        val personRef = lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
+        lagreSøknad(personRef, testSøknad, true)
+        lagreSøknad(personRef, testSøknad2, false)
+        val søknader = hentSøknader(personRef)
         assertEquals(testSøknad.id, søknader[0].id) {"Wrong søknad: ${søknader[0]} should be ${testSøknad.id}"}
         assertEquals(testSøknad2.id, søknader[1].id) {"Wrong søknad: ${søknader[1]} should be ${testSøknad2.id}"}
     }
 }
 
-
-
-
-object PostgresContainer {
-    val instance by lazy {
-        PostgreSQLContainer<Nothing>("postgres:14").apply {
-            withReuse(true)
-            withLabel("app-navn", "forstegangssoknader")
-            setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all", "-c", "wal_level=logical")
-            start()
-            followOutput(Slf4jLogConsumer(org.slf4j.LoggerFactory.getLogger("postgres")))
-        }
+fun databaseTest(testblokk: FørstegangsbehandlingDao.(DataSource) -> Unit) {
+    val testDataSource = databaseContainer.nyTilkobling()
+    try {
+        testblokk(FørstegangsbehandlingDao(testDataSource.ds), testDataSource.ds)
+    } finally {
+        databaseContainer.droppTilkobling(testDataSource)
     }
 }
-
-internal object TestDatasource {
-    private val instance: HikariDataSource by lazy {
-        HikariDataSource().apply {
-            initializationFailTimeout = 5000
-            username = PostgresContainer.instance.username
-            password = PostgresContainer.instance.password
-            jdbcUrl = PostgresContainer.instance.jdbcUrl
-            connectionTimeout = 1000L
-        }
-    }
-
-    val migratedDb = instance.also { migrate(it) }
-}
-
-internal val tabeller = listOf("person", "soknad")
-fun resetDatabase() {
-    sessionOf(migratedDb).use { session ->
-        tabeller.forEach {  table ->
-            session.run(queryOf("truncate table $table cascade").asExecute)
-        }
-    }
-}
-
-internal fun migrate(dataSource: HikariDataSource) =
-    Flyway.configure()
-        .dataSource(dataSource)
-        .cleanDisabled(false)
-        .load()
-        .also { it.clean() }
-        .migrate()

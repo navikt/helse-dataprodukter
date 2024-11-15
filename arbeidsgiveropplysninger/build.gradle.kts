@@ -8,8 +8,8 @@ dependencies {
     implementation(project(":felles"))
 
     testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:$tbdLibsVersion")
-    testImplementation("org.testcontainers:postgresql:1.20.3")
-    testImplementation("io.mockk:mockk:1.13.9")
+    testImplementation("com.github.navikt.tbd-libs:postgres-testdatabaser:$tbdLibsVersion")
+    testImplementation("io.mockk:mockk:1.13.13")
 }
 
 tasks {
