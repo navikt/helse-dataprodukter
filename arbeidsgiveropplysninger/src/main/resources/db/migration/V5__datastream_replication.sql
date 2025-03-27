@@ -1,1 +1,0 @@
-SELECT PG_CREATE_LOGICAL_REPLICATION_SLOT ('dataprodukter_arbeidsgiveropplysninger_replication', 'pgoutput');

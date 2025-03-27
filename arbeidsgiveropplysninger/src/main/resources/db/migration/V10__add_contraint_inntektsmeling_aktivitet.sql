@@ -1,1 +1,0 @@
-ALTER TABLE inntektsmelding_aktivitet ADD CONSTRAINT unik_dokument_og_varselkode_constraint UNIQUE (inntektsmelding_id, varselkode)

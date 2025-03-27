@@ -1,1 +1,0 @@
-CREATE PUBLICATION dataprodukter_arbeidsgiveropplysninger_publication for ALL TABLES;

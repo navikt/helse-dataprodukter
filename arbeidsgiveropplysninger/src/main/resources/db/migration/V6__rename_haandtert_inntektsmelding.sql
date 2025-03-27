@@ -1,1 +1,0 @@
-ALTER TABLE haandtert_inntektsmelding RENAME TO inntektsmelding_haandtert;
