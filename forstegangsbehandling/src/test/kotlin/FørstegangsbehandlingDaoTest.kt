@@ -18,7 +18,20 @@ internal class FørstegangsbehandlingDaoTest {
         val testSøknad = lagSøknad( 1.januar(2022), 31.januar(2022), null)
         val personRef = lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
         val result = lagreSøknad(personRef, testSøknad, true)
-        assertTrue(result == 1) {"PersonOgOrgnummer ref: $result er ikke riktig"}
+        assertTrue(result == 1) {"Lagring av person eller søknad ble ikke gjennomført riktig"}
+    }
+
+    @Test
+    fun `insert langt orgnummer`() = databaseTest {
+        val testSøknad = lagSøknad(
+            1.januar(2022),
+            31.januar(2022),
+            null,
+            orgnr = "123456789123456789"
+        )
+        val personRef = lagrePerson(testSøknad.fnr, testSøknad.orgnummer)
+        val result = lagreSøknad(personRef, testSøknad, true)
+        assertTrue(result == 1) {"Lagring av person eller søknad ble ikke gjennomført riktig"}
     }
 
     @Test
