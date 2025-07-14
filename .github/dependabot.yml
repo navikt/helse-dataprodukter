@@ -1,6 +1,5 @@
 version: 2
 updates:
-  # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     commit-message:
@@ -8,17 +7,29 @@ updates:
     schedule:
       interval: "daily"
 
-  # Maintain dependencies for docker
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/annulleringer"
     commit-message:
       prefix: "⬆ "
     schedule:
       interval: "daily"
 
-  # Maintain dependencies for gradle
+  - package-ecosystem: "docker"
+    directory: "/forstegangsbehandling"
+    commit-message:
+      prefix: "⬆ "
+    schedule:
+      interval: "daily"
+
   - package-ecosystem: "gradle"
-    directory: "/"
+    directory: "/annulleringer"
+    commit-message:
+      prefix: "⬆ "
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gradle"
+    directory: "/forstegangsbehandling"
     commit-message:
       prefix: "⬆ "
     schedule:
