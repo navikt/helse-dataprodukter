@@ -1,4 +1,4 @@
-val tbdLibsVersion = "2025.03.27-18.30-c228796d"
+val tbdLibsVersion = "2025.06.20-13.05-40af2647"
 
 plugins {
     application
