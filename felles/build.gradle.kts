@@ -1,7 +1,7 @@
 val rapidsAndRiversVersion = "2025081612341755340488.ff2c2d01e04f"
 val flywayVersion = "11.5.0"
 val hikariCPVersion = "6.3.0"
-val postgresqlVersion = "42.7.5"
+val postgresqlVersion = "42.7.7"
 
 plugins {
     application
