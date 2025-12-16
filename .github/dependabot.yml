@@ -13,6 +13,8 @@ updates:
       prefix: "⬆ "
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "docker"
     directory: "/forstegangsbehandling"
@@ -20,6 +22,17 @@ updates:
       prefix: "⬆ "
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: "gradle"
+    directory: "/"
+    commit-message:
+      prefix: "⬆ "
+    schedule:
+      interval: "daily"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "gradle"
     directory: "/annulleringer"
@@ -27,6 +40,8 @@ updates:
       prefix: "⬆ "
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "gradle"
     directory: "/forstegangsbehandling"
@@ -34,3 +49,5 @@ updates:
       prefix: "⬆ "
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
