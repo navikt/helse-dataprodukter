@@ -7,24 +7,6 @@ updates:
     schedule:
       interval: "daily"
 
-  - package-ecosystem: "docker"
-    directory: "/annulleringer"
-    commit-message:
-      prefix: "⬆ "
-    schedule:
-      interval: "daily"
-    cooldown:
-      default-days: 7
-
-  - package-ecosystem: "docker"
-    directory: "/forstegangsbehandling"
-    commit-message:
-      prefix: "⬆ "
-    schedule:
-      interval: "daily"
-    cooldown:
-      default-days: 7
-
   - package-ecosystem: "gradle"
     directory: "/"
     commit-message:
