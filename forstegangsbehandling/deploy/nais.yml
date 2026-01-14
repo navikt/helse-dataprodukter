@@ -40,8 +40,6 @@ spec:
         flags:
           - name: cloudsql.logical_decoding
             value: "on"
-  secureLogs:
-    enabled: true
   env:
     - name: KAFKA_RAPID_TOPIC
       value: tbd.rapid.v1
