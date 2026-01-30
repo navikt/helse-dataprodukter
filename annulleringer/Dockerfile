@@ -6,3 +6,5 @@ ENV JDK_JAVA_OPTIONS='-XX:MaxRAMPercentage=90'
 WORKDIR /app
 COPY build/libs/*.jar ./
 CMD ["-jar", "app.jar"]
+
+ARG BYGD_PA_NY='2026-01-30T10:18:45'
