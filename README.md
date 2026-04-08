@@ -1,6 +1,6 @@
 # helse-dataprodukter
 
-Applikasjoner som produserer dataprodukter i Team Bømlo.
+Applikasjoner som produserer dataprodukter i Team SAS.
 
 ## Henvendelser
 
