@@ -30,6 +30,8 @@ jobs:
           cache: 'gradle'
       - name: test and build
         run: ./gradlew :annulleringer:test :annulleringer:build --info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build container image
         uses: nais/docker-build-push@v0
         id: docker-build-push
