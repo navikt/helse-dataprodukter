@@ -1,4 +1,4 @@
-name: Deploy forstegangsbehandling
+name: Bygg og deploy forstegangsbehandling
 
 on:
   push:
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   build:
-    name: build docker image
+    name: Build docker image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +31,12 @@ jobs:
           distribution: 'temurin'
           java-version: '21.x'
           cache: 'gradle'
-      - name: test and build
-        run: ./gradlew :forstegangsbehandling:test :forstegangsbehandling:build --info
+      - name: Test and build
+        run: ./gradlew :forstegangsbehandling:build --info
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build container image
+        if: ${{ github.ref_name == 'main' }}
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
@@ -46,9 +47,10 @@ jobs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
   deployDev:
-    name: deploy to dev
+    name: Deploy to dev
     needs: [build]
     runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'main' }}
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
@@ -59,9 +61,10 @@ jobs:
           VAR: image=${{ needs.build.outputs.image }}
 
   deployProd:
-    name: deploy to prod
+    name: Deploy to prod
     needs: [build]
     runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'main' }}
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
