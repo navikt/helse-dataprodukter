@@ -1,3 +1,0 @@
-pool: nav-prod
-minReplicas: 1
-maxReplicas: 1

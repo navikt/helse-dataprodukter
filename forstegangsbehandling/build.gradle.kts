@@ -12,6 +12,12 @@ dependencies {
 }
 
 tasks {
+    test {
+        // Ikke kjør testene i parallell fordi V5 migrasjonen tryner når flere
+        // test oppsett gjør det samtidig. Få tester, så det går fint.
+        systemProperty("junit.jupiter.execution.parallel.enabled", "false")
+    }
+
     jar {
 
         archiveFileName.set("app.jar")
