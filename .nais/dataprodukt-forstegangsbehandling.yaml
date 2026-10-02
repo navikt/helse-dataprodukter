@@ -6,7 +6,6 @@ metadata:
   labels:
     team: tbd
 spec:
-  image: {{image}}
   port: 8080
   liveness:
     path: isalive
@@ -25,29 +24,6 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
-  kafka:
-    pool: {{pool}}
-  gcp:
-    sqlInstances:
-      - type: POSTGRES_17
-        diskAutoresize: true
-        tier: {{#if sqlInstanceTier}}{{ sqlInstanceTier }}{{else}}db-custom-1-3840{{/if}}
-        databases:
-          - name: forstegangsbehandling
-            envVarPrefix: DATABASE
-            users:
-              - name: bigquery_datastream
-        flags:
-          - name: cloudsql.logical_decoding
-            value: "on"
-          - name: cloudsql.enable_pgaudit
-            value: "{{pgAudit}}"
-          - name: pgaudit.log
-            value: "write,ddl,role"
-          - name: pgaudit.log_parameter
-            value: "on"
-          - name: pgaudit.log_relation
-            value: "on"
   env:
     - name: KAFKA_RAPID_TOPIC
       value: tbd.rapid.v1
