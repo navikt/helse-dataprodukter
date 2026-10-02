@@ -12,50 +12,54 @@ import java.util.*
 import javax.sql.DataSource
 
 class E2ETest {
+    @Test
+    fun `Person ender opp i databasen`() =
+        e2e {
+            SøknadMediator(rapid, dao)
+            rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
+            val result = dao.refFor("27845899830", "805824352")
+            assertEquals(1L, result)
+        }
 
     @Test
-    fun `Person ender opp i databasen`() = e2e {
-        SøknadMediator(rapid, dao)
-        rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
-        val result = dao.refFor("27845899830", "805824352")
-        assertEquals(1L, result)
-    }
-    @Test
-    fun `Førstegangsbehandling ender i databasen`() = e2e {
-        SøknadMediator(rapid, dao)
-        rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
-        val ref = dao.refFor("27845899830", "805824352")
-        val søknader = dao.hentSøknader(ref)
-        assertEquals(1, søknader.size)
-    }
+    fun `Førstegangsbehandling ender i databasen`() =
+        e2e {
+            SøknadMediator(rapid, dao)
+            rapid.sendTestMessage(testSøknad(fom = "2022-10-01", tom = "2022-10-31"))
+            val ref = dao.refFor("27845899830", "805824352")
+            val søknader = dao.hentSøknader(ref)
+            assertEquals(1, søknader.size)
+        }
 
     @Test
-    fun `Ignorerer lagrede søknader som har tom mindre enn fom`() = e2e {
-        SøknadMediator(rapid, dao)
-        val søknadIdForTomFørFom = UUID.randomUUID()
-        rapid.sendTestMessage(testSøknad(søknadIdForTomFørFom, 31.januar(2023).toString(), 30.januar(2023).toString()))
+    fun `Ignorerer lagrede søknader som har tom mindre enn fom`() =
+        e2e {
+            SøknadMediator(rapid, dao)
+            val søknadIdForTomFørFom = UUID.randomUUID()
+            rapid.sendTestMessage(testSøknad(søknadIdForTomFørFom, 31.januar(2023).toString(), 30.januar(2023).toString()))
 
-        val søknadId = UUID.randomUUID()
-        rapid.sendTestMessage(testSøknad(søknadId = søknadId, "2023-02-01", "2023-02-28"))
+            val søknadId = UUID.randomUUID()
+            rapid.sendTestMessage(testSøknad(søknadId = søknadId, "2023-02-01", "2023-02-28"))
 
-        //siste søknad teller som førstegangsbehandling fordi første søknad ikke er gyldig
-        assertEquals(true, erFørstegangsbehandling(søknadId))
-        assertEquals(false, erFørstegangsbehandling(søknadIdForTomFørFom))
-    }
+            // siste søknad teller som førstegangsbehandling fordi første søknad ikke er gyldig
+            assertEquals(true, erFørstegangsbehandling(søknadId))
+            assertEquals(false, erFørstegangsbehandling(søknadIdForTomFørFom))
+        }
 
     @Test
-    fun `Ignorerer lagrede søknader som har arbeidGjenopptatt mindre enn fom`() = e2e {
-        SøknadMediator(rapid, dao)
-        val søknadIdForArbeidGjenopptattFørFom = UUID.randomUUID()
-        rapid.sendTestMessage(testSøknad(søknadIdForArbeidGjenopptattFørFom, 2.januar(2023).toString(), 31.januar(2023).toString(), 1.januar(2023)))
+    fun `Ignorerer lagrede søknader som har arbeidGjenopptatt mindre enn fom`() =
+        e2e {
+            SøknadMediator(rapid, dao)
+            val søknadIdForArbeidGjenopptattFørFom = UUID.randomUUID()
+            rapid.sendTestMessage(testSøknad(søknadIdForArbeidGjenopptattFørFom, 2.januar(2023).toString(), 31.januar(2023).toString(), 1.januar(2023)))
 
-        val søknadId = UUID.randomUUID()
-        rapid.sendTestMessage(testSøknad(søknadId = søknadId, "2023-02-01", "2023-02-28"))
+            val søknadId = UUID.randomUUID()
+            rapid.sendTestMessage(testSøknad(søknadId = søknadId, "2023-02-01", "2023-02-28"))
 
-        //siste søknad teller som førstegangsbehandling fordi første søknad ikke er gyldig
-        assertEquals(false, erFørstegangsbehandling(søknadIdForArbeidGjenopptattFørFom))
-        assertEquals(true, erFørstegangsbehandling(søknadId))
-    }
+            // siste søknad teller som førstegangsbehandling fordi første søknad ikke er gyldig
+            assertEquals(false, erFørstegangsbehandling(søknadIdForArbeidGjenopptattFørFom))
+            assertEquals(true, erFørstegangsbehandling(søknadId))
+        }
 
     private fun e2e(testblokk: E2ETestContext.() -> Unit) {
         val rapid = TestRapid()
@@ -67,7 +71,7 @@ class E2ETest {
     data class E2ETestContext(
         val rapid: TestRapid,
         val dao: FørstegangsbehandlingDao,
-        val dataSource: DataSource
+        val dataSource: DataSource,
     )
 
     fun E2ETestContext.erFørstegangsbehandling(søknadId: UUID): Boolean? {
@@ -90,11 +94,15 @@ class E2ETest {
 //        rapid.sendTestMessage(t3)
 //
 //    }
-
 }
 
 @Language("JSON")
-private fun testSøknad(søknadId: UUID = UUID.randomUUID(), fom: String, tom: String, arbeidGjenopptatt: LocalDate? = null) = """
+private fun testSøknad(
+    søknadId: UUID = UUID.randomUUID(),
+    fom: String,
+    tom: String,
+    arbeidGjenopptatt: LocalDate? = null,
+) = """
     {
       "id": "$søknadId",
       "type": "ARBEIDSTAKERE",
@@ -153,4 +161,4 @@ private fun testSøknad(søknadId: UUID = UUID.randomUUID(), fom: String, tom: S
       "@opprettet": "2022-12-09T14:56:50.945681886",
       "@event_name": "sendt_søknad_nav"
     }
-""".trimIndent()
+    """.trimIndent()

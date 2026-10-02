@@ -8,7 +8,6 @@ class SøknadMediator(
     rapidsConnection: RapidsConnection,
     private val dao: FørstegangsbehandlingDao,
 ) {
-
     init {
         SøknadsRiver(rapidsConnection, this)
     }

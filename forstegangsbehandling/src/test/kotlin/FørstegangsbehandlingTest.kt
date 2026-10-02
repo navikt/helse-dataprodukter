@@ -9,7 +9,6 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 internal class FørstegangsbehandlingTest {
-
     companion object {
         internal fun lagSøknad(
             fom: LocalDate,
@@ -28,7 +27,7 @@ internal class FørstegangsbehandlingTest {
             fom,
             tom,
             arbeidGjenopptatt,
-            opprettet
+            opprettet,
         )
     }
 
@@ -60,7 +59,6 @@ internal class FørstegangsbehandlingTest {
         assertTrue(fgb.førstegangsbehandlinger().contains(først.id))
     }
 
-
     @Test
     fun `Arbeid gjennopptatt avkutter søknadsperioden`() {
         val fgb = Førstegangsbehandling()
@@ -71,16 +69,16 @@ internal class FørstegangsbehandlingTest {
         assertTrue(fgb.førstegangsbehandlinger().containsAll(listOf(først.id, sist.id)))
     }
 
-
     @Test
     fun `sist opprettede søknad telles`() {
         val fgb = Førstegangsbehandling()
         val opprettet = LocalDateTime.of(2022, 1, 1, 1, 0)
-        val søknader = listOf(
-            lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet.plusDays(1)),
-            lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet),
-            lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet)
-        )
+        val søknader =
+            listOf(
+                lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet.plusDays(1)),
+                lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet),
+                lagSøknad(1.januar(2022), 31.januar(2022), 30.januar(2022), UUID.randomUUID(), opprettet),
+            )
         søknader.forEach { fgb.motta(it) }
         val result = fgb.førstegangsbehandlinger()
         assertEquals(1, result.size)

@@ -8,18 +8,24 @@ import java.time.LocalDateTime
 import java.util.*
 import javax.sql.DataSource
 
-class FørstegangsbehandlingDao(private val dataSource: DataSource) {
-
-
-        internal fun lagreSøknad(personRef: Long, søknad: Søknad, førstegangsbehandling: Boolean): Int = sessionOf(dataSource).use { session ->
+class FørstegangsbehandlingDao(
+    private val dataSource: DataSource,
+) {
+    internal fun lagreSøknad(
+        personRef: Long,
+        søknad: Søknad,
+        førstegangsbehandling: Boolean,
+    ): Int =
+        sessionOf(dataSource).use { session ->
             @Language("PostgreSQL")
-            val statement = """ 
+            val statement =
+                """ 
             INSERT INTO soknad (person_ref, hendelse_id, soknad_id, sykmelding_id, opprettet, fom, tom, arbeid_gjenopptatt, forstegangsbehandling) 
             VALUES (:person_ref, :hendelse_id, :soknad_id, :sykmelding_id, :opprettet, :fom, :tom, :arbeid_gjenopptatt, :forstegangsbehandling) 
             ON CONFLICT (hendelse_id) 
             DO 
             UPDATE SET forstegangsbehandling = soknad.forstegangsbehandling;
-        """.trimMargin()
+                """.trimMargin()
             queryOf(
                 statement,
                 mapOf(
@@ -31,109 +37,131 @@ class FørstegangsbehandlingDao(private val dataSource: DataSource) {
                     "fom" to søknad.fom,
                     "tom" to søknad.tom,
                     "arbeid_gjenopptatt" to søknad.arbeidGjenopptatt,
-                    "forstegangsbehandling" to førstegangsbehandling
-                )
+                    "forstegangsbehandling" to førstegangsbehandling,
+                ),
             ).asUpdate.runWithSession(session)
         }
 
-        internal fun refFor(fnr: String, orgnummer: String): Long  = sessionOf(dataSource).use { session ->
+    internal fun refFor(
+        fnr: String,
+        orgnummer: String,
+    ): Long =
+        sessionOf(dataSource).use { session ->
             @Language("PostgreSQL")
-            val statement = """ 
+            val statement =
+                """ 
             SELECT id FROM person where fnr = :fnr AND organisasjonsnummer = :organisasjonsnummer;
-        """.trimMargin()
+                """.trimMargin()
             queryOf(
                 statement,
                 mapOf(
                     "fnr" to fnr,
                     "organisasjonsnummer" to orgnummer,
-                )
+                ),
             ).map { it.long("id") }
                 .asSingle
                 .runWithSession(session) ?: throw IllegalStateException("Fant ikke ref til fnr, orgnummer i person tabell")
-
         }
 
-        internal fun lagrePerson(fnr: String, orgnummer: String): Long {
-            oppdaterPersonTabell(fnr, orgnummer)
-            return refFor(fnr, orgnummer)
-        }
+    internal fun lagrePerson(
+        fnr: String,
+        orgnummer: String,
+    ): Long {
+        oppdaterPersonTabell(fnr, orgnummer)
+        return refFor(fnr, orgnummer)
+    }
 
-        private fun oppdaterPersonTabell(fnr: String, orgnummer: String) = sessionOf(dataSource).use { session ->
-            @Language("PostgreSQL")
-            val statement = """ 
-            INSERT INTO person (fnr, organisasjonsnummer, opprettet) VALUES (:fnr, :organisasjonsnummer, :opprettet) ON CONFLICT DO NOTHING;
-        """.trimMargin()
-            queryOf(
-                statement,
-                mapOf(
-                    "fnr" to fnr,
-                    "organisasjonsnummer" to orgnummer,
-                    "opprettet" to LocalDateTime.now()
-                )
-            ).asUpdate.runWithSession(session)
-        }
-
-    internal fun hentSøknader(personRef: Long)  = sessionOf(dataSource).use { session ->
+    private fun oppdaterPersonTabell(
+        fnr: String,
+        orgnummer: String,
+    ) = sessionOf(dataSource).use { session ->
         @Language("PostgreSQL")
-        val statement = """ 
-            SELECT * FROM soknad
-            JOIN person ON person.id = person_ref
-            WHERE person_ref = :person_ref
-        """.trimMargin()
+        val statement =
+            """ 
+            INSERT INTO person (fnr, organisasjonsnummer, opprettet) VALUES (:fnr, :organisasjonsnummer, :opprettet) ON CONFLICT DO NOTHING;
+            """.trimMargin()
         queryOf(
             statement,
             mapOf(
-                "person_ref" to personRef
-            )
-        ).map { Søknad(
-            it.uuid("hendelse_id"),
-            it.uuid("soknad_id"),
-            it.uuid("sykmelding_id"),
-            it.string("fnr"),
-            it.string("organisasjonsnummer"),
-            it.localDate("fom"),
-            it.localDate("tom"),
-            it.localDateOrNull("arbeid_gjenopptatt"),
-            it.localDateTime("opprettet"))
-        }.asList.runWithSession(session)
+                "fnr" to fnr,
+                "organisasjonsnummer" to orgnummer,
+                "opprettet" to LocalDateTime.now(),
+            ),
+        ).asUpdate.runWithSession(session)
     }
 
-    internal fun oppdaterSøknader(personRef: Long, updateMap: List<Pair<UUID, Boolean>>) = sessionOf(dataSource).use { session ->
+    internal fun hentSøknader(personRef: Long) =
+        sessionOf(dataSource).use { session ->
+            @Language("PostgreSQL")
+            val statement =
+                """ 
+            SELECT * FROM soknad
+            JOIN person ON person.id = person_ref
+            WHERE person_ref = :person_ref
+                """.trimMargin()
+            queryOf(
+                statement,
+                mapOf(
+                    "person_ref" to personRef,
+                ),
+            ).map {
+                Søknad(
+                    it.uuid("hendelse_id"),
+                    it.uuid("soknad_id"),
+                    it.uuid("sykmelding_id"),
+                    it.string("fnr"),
+                    it.string("organisasjonsnummer"),
+                    it.localDate("fom"),
+                    it.localDate("tom"),
+                    it.localDateOrNull("arbeid_gjenopptatt"),
+                    it.localDateTime("opprettet"),
+                )
+            }.asList
+                .runWithSession(session)
+        }
+
+    internal fun oppdaterSøknader(
+        personRef: Long,
+        updateMap: List<Pair<UUID, Boolean>>,
+    ) = sessionOf(dataSource).use { session ->
         session.transaction { transaction ->
-            updateMap.forEach { update -> transaction.oppdaterSøknader(personRef, update.first,  update.second) }
+            updateMap.forEach { update -> transaction.oppdaterSøknader(personRef, update.first, update.second) }
         }
     }
 
-    private fun TransactionalSession.oppdaterSøknader(personRef: Long, hendelseId: UUID, førstegangsbehandling: Boolean)  {
+    private fun TransactionalSession.oppdaterSøknader(
+        personRef: Long,
+        hendelseId: UUID,
+        førstegangsbehandling: Boolean,
+    ) {
         @Language("PostgreSQL")
-        val statement = """ 
+        val statement =
+            """ 
             UPDATE soknad
             SET forstegangsbehandling = :er_forstegangsbehandling
             WHERE soknad.person_ref = :person_ref AND hendelse_id = :hendelse_id
-        """.trimMargin()
+            """.trimMargin()
         queryOf(
             statement,
             mapOf(
                 "person_ref" to personRef,
                 "hendelse_id" to hendelseId,
-                "er_forstegangsbehandling" to førstegangsbehandling
-            )
+                "er_forstegangsbehandling" to førstegangsbehandling,
+            ),
         ).asUpdate.runWithSession(this)
     }
 }
 
+internal fun List<Pair<UUID, Boolean>>.førstegangsbehandlinger() = filter { it.second }.map { it.first }
 
-internal fun List<Pair<UUID, Boolean>>.førstegangsbehandlinger() =
-    filter { it.second }.map { it.first }
+internal fun List<Pair<UUID, Boolean>>.forlengelser() = filter { !it.second }.map { it.first }
 
-internal fun List<Pair<UUID, Boolean>>.forlengelser() =
-    filter { !it.second }.map { it.first }
-
-
-fun List<UUID>.toSQLValues() = map { it.toString() }
+fun List<UUID>.toSQLValues() =
+    map { it.toString() }
         .reduceIndexed { i, acc, s ->
-            if(i == 0 ) { s }
-            else {
+            if (i == 0) {
+                s
+            } else {
                 "$acc, $s"
             }
-}
+        }
